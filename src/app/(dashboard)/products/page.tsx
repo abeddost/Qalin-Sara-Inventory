@@ -13,7 +13,17 @@ export default function ProductsPage() {
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [user, setUser] = useState<any>(null)
   const supabase = createClient()
+
+  // Get user data from layout
+  useEffect(() => {
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      setUser(user)
+    }
+    getUser()
+  }, [supabase.auth])
 
   const fetchProducts = async () => {
     try {
@@ -38,10 +48,9 @@ export default function ProductsPage() {
     fetchProducts()
   }, [])
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header onAddProduct={() => setIsFormOpen(true)} />
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
@@ -56,7 +65,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header onAddProduct={() => setIsFormOpen(true)} />
+      <Header onAddProduct={() => setIsFormOpen(true)} user={user} />
       
       <div className="p-6">
         {/* Key Metrics */}

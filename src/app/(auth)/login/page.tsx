@@ -43,8 +43,8 @@ export default function LoginPage() {
       }
 
       toast.success('Welcome back!')
-      router.push('/products')
-      router.refresh()
+      // Use window.location for a full page refresh to ensure clean state
+      window.location.href = '/products'
     } catch (error) {
       toast.error('An unexpected error occurred')
     } finally {

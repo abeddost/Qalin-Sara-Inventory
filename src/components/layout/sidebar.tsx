@@ -10,21 +10,13 @@ import {
   Package, 
   BarChart3, 
   Settings, 
-  Users, 
-  Home,
   Menu,
   X,
-  Bell,
-  Search,
   CheckCircle,
   TrendingUp,
   ShoppingCart,
-  UserCheck,
-  Building2,
-  FileText,
-  DollarSign,
-  Warehouse,
-  ClipboardList
+  Receipt,
+  DollarSign
 } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
@@ -34,15 +26,11 @@ interface SidebarProps {
 }
 
 const navigation = [
-  { name: 'Dashboard', href: '/products', icon: Home },
-  { name: 'Inventory', href: '/products', icon: Package },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
-  { name: 'Customers', href: '/customers', icon: Users },
-  { name: 'Suppliers', href: '/suppliers', icon: UserCheck },
-  { name: 'Purchase', href: '/purchase', icon: ShoppingCart },
-  { name: 'Accounts', href: '/accounts', icon: DollarSign },
-  { name: 'Stock', href: '/stock', icon: Warehouse },
-  { name: 'Report', href: '/reports', icon: ClipboardList },
+  { name: 'Inventory', href: '/products', icon: Package },
+  { name: 'Orders', href: '/orders', icon: ShoppingCart },
+  { name: 'Invoices', href: '/invoices', icon: Receipt },
+  { name: 'Expenses', href: '/expenses', icon: DollarSign },
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
@@ -53,16 +41,21 @@ export function Sidebar({ user }: SidebarProps) {
   const supabase = createClient()
 
   const handleSignOut = async () => {
-    const { error } = await supabase.auth.signOut()
-    
-    if (error) {
-      toast.error('Error signing out')
-      return
+    try {
+      const { error } = await supabase.auth.signOut()
+      
+      if (error) {
+        toast.error('Error signing out: ' + error.message)
+        return
+      }
+      
+      toast.success('Signed out successfully')
+      // Use window.location for a full page refresh to clear any cached state
+      window.location.href = '/login'
+    } catch (err) {
+      toast.error('An unexpected error occurred during sign out')
+      console.error('Sign out error:', err)
     }
-    
-    toast.success('Signed out successfully')
-    router.push('/login')
-    router.refresh()
   }
 
   return (

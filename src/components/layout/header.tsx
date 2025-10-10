@@ -1,13 +1,16 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Bell, Search, Plus, Receipt, CreditCard, ShoppingCart, Settings, ChevronDown } from 'lucide-react'
+import { UserMenu } from './user-menu'
+import { Bell, Receipt, CreditCard, ShoppingCart, Settings } from 'lucide-react'
+import { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
   onAddProduct: () => void
+  user: User
 }
 
-export function Header({ onAddProduct }: HeaderProps) {
+export function Header({ onAddProduct, user }: HeaderProps) {
   return (
     <header className="bg-white border-b border-gray-200 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -44,12 +47,7 @@ export function Header({ onAddProduct }: HeaderProps) {
           </Button>
 
           {/* User Menu */}
-          <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center">
-              <span className="text-xs font-medium text-slate-600">A</span>
-            </div>
-            <ChevronDown className="h-4 w-4 text-gray-500" />
-          </div>
+          <UserMenu user={user} />
         </div>
       </div>
 

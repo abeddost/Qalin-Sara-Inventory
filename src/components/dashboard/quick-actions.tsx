@@ -3,7 +3,6 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { 
-  Receipt, 
   FileText, 
   Package, 
   UserPlus, 
@@ -19,12 +18,6 @@ interface QuickActionsProps {
 
 export function QuickActions({ onAddProduct }: QuickActionsProps) {
   const actions = [
-    {
-      title: 'Create POS Invoice',
-      icon: Receipt,
-      color: 'bg-red-500',
-      onClick: () => console.log('POS Invoice')
-    },
     {
       title: 'Create New Invoice',
       icon: FileText,
