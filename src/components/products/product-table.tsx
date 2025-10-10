@@ -11,7 +11,7 @@ import { ProductForm } from './product-form'
 import { ImagePreview } from './image-preview'
 import { CARPET_SIZES } from '@/lib/constants'
 import { toast } from 'sonner'
-import { Edit, Trash2, Eye, Search } from 'lucide-react'
+import { Edit, Trash2, Eye, Search, Package } from 'lucide-react'
 import type { ProductWithSizes } from '@/types/database'
 
 interface ProductTableProps {

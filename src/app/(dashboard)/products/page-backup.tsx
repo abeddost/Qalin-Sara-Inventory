@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layout/header'
 import { MetricsOverview } from '@/components/dashboard/metrics-overview'
-import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ProductTable } from '@/components/products/product-table'
 import { ProductForm } from '@/components/products/product-form'
 import type { ProductWithSizes } from '@/types/database'
@@ -45,8 +44,8 @@ export default function ProductsPage() {
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600 mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading dashboard...</p>
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
+              <p className="text-gray-500">Loading inventory...</p>
             </div>
           </div>
         </div>
@@ -58,15 +57,12 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50">
       <Header onAddProduct={() => setIsFormOpen(true)} />
       
-      <div className="p-6">
-        {/* Key Metrics */}
+      <div className="p-6 space-y-6">
+        {/* Dashboard Metrics */}
         <MetricsOverview products={products} />
 
-        {/* Quick Actions */}
-        <QuickActions onAddProduct={() => setIsFormOpen(true)} />
-
         {/* Products Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
           <ProductTable products={products} onRefresh={fetchProducts} />
         </div>
 
