@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { LogOut, Search, Moon, Sun } from 'lucide-react'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 interface NavbarProps {
   user: User
@@ -31,9 +31,30 @@ export function Navbar({ user }: NavbarProps) {
   }
 
   const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode)
-    // TODO: Implement dark mode toggle
+    const newDarkMode = !isDarkMode
+    setIsDarkMode(newDarkMode)
+    
+    // Toggle dark class on document element
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark')
+      localStorage.setItem('darkMode', 'true')
+    } else {
+      document.documentElement.classList.remove('dark')
+      localStorage.setItem('darkMode', 'false')
+    }
   }
+
+  // Initialize dark mode from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('darkMode')
+    if (savedDarkMode === 'true') {
+      setIsDarkMode(true)
+      document.documentElement.classList.add('dark')
+    } else {
+      setIsDarkMode(false)
+      document.documentElement.classList.remove('dark')
+    }
+  }, [])
 
   return (
     <nav className="border-b bg-card">
