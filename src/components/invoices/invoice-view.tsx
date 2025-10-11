@@ -20,6 +20,7 @@ interface InvoiceViewProps {
 export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps) {
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [orderData, setOrderData] = useState<any>(null)
+  const [isUpdatingStatus, setIsUpdatingStatus] = useState(false)
   const invoiceRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
 
@@ -78,6 +79,29 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
     })
   }
 
+  const updateInvoiceStatus = async (newStatus: string) => {
+    if (!invoice) return
+
+    setIsUpdatingStatus(true)
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', invoice.id)
+
+      if (error) throw error
+
+      toast.success(`Invoice status updated to ${newStatus}`)
+      // Update the local invoice state
+      invoice.status = newStatus as any
+    } catch (error: any) {
+      console.error('Error updating invoice status:', error)
+      toast.error('Failed to update invoice status')
+    } finally {
+      setIsUpdatingStatus(false)
+    }
+  }
+
   const generatePDF = async () => {
     if (!invoice || !invoiceRef.current) return
 
@@ -131,9 +155,18 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
               Invoice {invoice.invoice_number}
             </span>
             <div className="flex items-center space-x-2">
-              <Badge className={getStatusColor(invoice.status)}>
-                {invoice.status.toUpperCase()}
-              </Badge>
+              <select
+                value={invoice.status}
+                onChange={(e) => updateInvoiceStatus(e.target.value)}
+                disabled={isUpdatingStatus}
+                className={`px-3 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(invoice.status)}`}
+              >
+                <option value="draft">DRAFT</option>
+                <option value="sent">SENT</option>
+                <option value="paid">PAID</option>
+                <option value="overdue">OVERDUE</option>
+                <option value="cancelled">CANCELLED</option>
+              </select>
               <Button
                 onClick={generatePDF}
                 disabled={isGeneratingPDF}
@@ -206,11 +239,20 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Invoice Details:</h3>
               <div className="bg-gray-50 p-4 rounded-lg space-y-2">
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span className="text-gray-600">Status:</span>
-                  <Badge className={getStatusColor(invoice.status)}>
-                    {invoice.status.toUpperCase()}
-                  </Badge>
+                  <select
+                    value={invoice.status}
+                    onChange={(e) => updateInvoiceStatus(e.target.value)}
+                    disabled={isUpdatingStatus}
+                    className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(invoice.status)}`}
+                  >
+                    <option value="draft">DRAFT</option>
+                    <option value="sent">SENT</option>
+                    <option value="paid">PAID</option>
+                    <option value="overdue">OVERDUE</option>
+                    <option value="cancelled">CANCELLED</option>
+                  </select>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>

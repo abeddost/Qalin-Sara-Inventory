@@ -20,7 +20,12 @@ import {
   User,
   DollarSign,
   Filter,
-  Download
+  Download,
+  CheckCircle,
+  Clock,
+  Package,
+  Truck,
+  XCircle
 } from 'lucide-react'
 import { OrderForm } from '@/components/orders/order-form'
 import type { OrderWithItems, ProductWithSizes } from '@/types/database'
@@ -103,6 +108,23 @@ export default function OrdersPage() {
     setIsDeleteDialogOpen(true)
   }
 
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', orderId)
+
+      if (error) throw error
+
+      toast.success(`Order status updated to ${newStatus}`)
+      fetchOrders()
+    } catch (error: any) {
+      console.error('Error updating order status:', error)
+      toast.error('Failed to update order status')
+    }
+  }
+
   const confirmDelete = async () => {
     if (!orderToDelete) return
 
@@ -150,12 +172,34 @@ export default function OrdersPage() {
     let totalOrders = filteredOrders.length
     let totalValue = filteredOrders.reduce((sum, order) => sum + order.final_amount, 0)
     let pendingOrders = filteredOrders.filter(order => order.status === 'pending').length
-    let completedOrders = filteredOrders.filter(order => order.status === 'delivered').length
+    let confirmedOrders = filteredOrders.filter(order => order.status === 'confirmed').length
+    let processingOrders = filteredOrders.filter(order => order.status === 'processing').length
+    let shippedOrders = filteredOrders.filter(order => order.status === 'shipped').length
+    let deliveredOrders = filteredOrders.filter(order => order.status === 'delivered').length
+    let cancelledOrders = filteredOrders.filter(order => order.status === 'cancelled').length
 
-    return { totalOrders, totalValue, pendingOrders, completedOrders }
+    return { 
+      totalOrders, 
+      totalValue, 
+      pendingOrders, 
+      confirmedOrders, 
+      processingOrders, 
+      shippedOrders, 
+      deliveredOrders, 
+      cancelledOrders 
+    }
   }
 
-  const { totalOrders, totalValue, pendingOrders, completedOrders } = calculateTotals()
+  const { 
+    totalOrders, 
+    totalValue, 
+    pendingOrders, 
+    confirmedOrders, 
+    processingOrders, 
+    shippedOrders, 
+    deliveredOrders, 
+    cancelledOrders 
+  } = calculateTotals()
 
   if (isLoading) {
     return (
@@ -196,54 +240,108 @@ export default function OrdersPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Orders</p>
-                <p className="text-3xl font-bold text-gray-900">{totalOrders}</p>
+      <div className="space-y-6 mb-8">
+        {/* Overview Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                  <p className="text-3xl font-bold text-gray-900">{totalOrders}</p>
+                </div>
+                <ShoppingCart className="h-8 w-8 text-blue-600" />
               </div>
-              <ShoppingCart className="h-8 w-8 text-blue-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Value</p>
-                <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-600">Total Value</p>
+                  <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
+                </div>
+                <DollarSign className="h-8 w-8 text-green-600" />
               </div>
-              <DollarSign className="h-8 w-8 text-green-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
 
-        <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-3xl font-bold text-gray-900">{pendingOrders}</p>
+        {/* Status Cards */}
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Pending</p>
+                  <p className="text-2xl font-bold text-yellow-600">{pendingOrders}</p>
+                </div>
+                <Clock className="h-6 w-6 text-yellow-600" />
               </div>
-              <Calendar className="h-8 w-8 text-yellow-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
 
-        <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Completed</p>
-                <p className="text-3xl font-bold text-gray-900">{completedOrders}</p>
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Confirmed</p>
+                  <p className="text-2xl font-bold text-blue-600">{confirmedOrders}</p>
+                </div>
+                <CheckCircle className="h-6 w-6 text-blue-600" />
               </div>
-              <User className="h-8 w-8 text-purple-600" />
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Processing</p>
+                  <p className="text-2xl font-bold text-purple-600">{processingOrders}</p>
+                </div>
+                <Package className="h-6 w-6 text-purple-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Shipped</p>
+                  <p className="text-2xl font-bold text-indigo-600">{shippedOrders}</p>
+                </div>
+                <Truck className="h-6 w-6 text-indigo-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Delivered</p>
+                  <p className="text-2xl font-bold text-green-600">{deliveredOrders}</p>
+                </div>
+                <User className="h-6 w-6 text-green-600" />
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white border-0 shadow-sm">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-600">Cancelled</p>
+                  <p className="text-2xl font-bold text-red-600">{cancelledOrders}</p>
+                </div>
+                <XCircle className="h-6 w-6 text-red-600" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {/* Filters */}
@@ -335,9 +433,18 @@ export default function OrdersPage() {
                   </TableCell>
                   
                   <TableCell>
-                    <Badge className={getStatusColor(order.status)}>
-                      {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                    </Badge>
+                    <select
+                      value={order.status}
+                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(order.status)}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="confirmed">Confirmed</option>
+                      <option value="processing">Processing</option>
+                      <option value="shipped">Shipped</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </TableCell>
                   
                   <TableCell>

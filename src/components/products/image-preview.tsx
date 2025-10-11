@@ -1,6 +1,6 @@
 'use client'
 
-import { Dialog, DialogContent } from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { X, ZoomIn, ZoomOut, RotateCw } from 'lucide-react'
 import { useState } from 'react'
@@ -41,6 +41,7 @@ export function ImagePreview({ open, onOpenChange, imageUrl }: ImagePreviewProps
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
+        <DialogTitle className="sr-only">Product Image Preview</DialogTitle>
         <div className="relative w-full h-[80vh] bg-black">
           {/* Close Button */}
           <Button

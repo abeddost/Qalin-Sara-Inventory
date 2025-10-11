@@ -46,6 +46,23 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
     setIsViewOpen(true)
   }
 
+  const updateInvoiceStatus = async (invoiceId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('invoices')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', invoiceId)
+
+      if (error) throw error
+
+      toast.success(`Invoice status updated to ${newStatus}`)
+      onRefresh()
+    } catch (error: any) {
+      console.error('Error updating invoice status:', error)
+      toast.error('Failed to update invoice status')
+    }
+  }
+
   const handleDelete = async (invoice: InvoiceWithItems) => {
     setInvoiceToDelete(invoice)
   }
@@ -132,9 +149,17 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge className={getStatusColor(invoice.status)}>
-                      {invoice.status}
-                    </Badge>
+                    <select
+                      value={invoice.status}
+                      onChange={(e) => updateInvoiceStatus(invoice.id, e.target.value)}
+                      className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(invoice.status)}`}
+                    >
+                      <option value="draft">Draft</option>
+                      <option value="sent">Sent</option>
+                      <option value="paid">Paid</option>
+                      <option value="overdue">Overdue</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {formatDate(invoice.issue_date)}
