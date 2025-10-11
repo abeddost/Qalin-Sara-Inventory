@@ -1,0 +1,211 @@
+'use client'
+
+import { useState } from 'react'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { InvoiceWithItems } from '@/types/database'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
+import InvoiceForm from './invoice-form'
+
+interface InvoiceTableProps {
+  invoices: InvoiceWithItems[]
+  onRefresh: () => void
+}
+
+export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps) {
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [invoiceToDelete, setInvoiceToDelete] = useState<InvoiceWithItems | null>(null)
+  
+  const supabase = createClient()
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'draft': return 'bg-gray-100 text-gray-800'
+      case 'sent': return 'bg-blue-100 text-blue-800'
+      case 'paid': return 'bg-green-100 text-green-800'
+      case 'overdue': return 'bg-red-100 text-red-800'
+      case 'cancelled': return 'bg-gray-100 text-gray-800'
+      default: return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const handleEdit = (invoice: InvoiceWithItems) => {
+    setSelectedInvoice(invoice)
+    setIsFormOpen(true)
+  }
+
+  const handleDelete = async (invoice: InvoiceWithItems) => {
+    setInvoiceToDelete(invoice)
+  }
+
+  const confirmDelete = async () => {
+    if (!invoiceToDelete) return
+
+    setIsDeleting(true)
+    try {
+      // Delete invoice items first (due to foreign key constraint)
+      const { error: itemsError } = await supabase
+        .from('invoice_items')
+        .delete()
+        .eq('invoice_id', invoiceToDelete.id)
+
+      if (itemsError) throw itemsError
+
+      // Delete the invoice
+      const { error: invoiceError } = await supabase
+        .from('invoices')
+        .delete()
+        .eq('id', invoiceToDelete.id)
+
+      if (invoiceError) throw invoiceError
+
+      toast.success('Invoice deleted successfully')
+      onRefresh()
+    } catch (error) {
+      console.error('Error deleting invoice:', error)
+      toast.error('Failed to delete invoice')
+    } finally {
+      setIsDeleting(false)
+      setInvoiceToDelete(null)
+    }
+  }
+
+  const formatDate = (dateString: string | null) => {
+    if (!dateString) return '-'
+    return new Date(dateString).toLocaleDateString()
+  }
+
+  return (
+    <>
+      <div className="bg-white rounded-lg shadow">
+        <div className="overflow-x-auto">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Invoice #
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Customer
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Status
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Issue Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Due Date
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Total
+                </th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody className="bg-white divide-y divide-gray-200">
+              {invoices.map((invoice) => (
+                <tr key={invoice.id} className="hover:bg-gray-50">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {invoice.invoice_number}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div>
+                      <div className="font-medium">{invoice.customer_name}</div>
+                      {invoice.customer_email && (
+                        <div className="text-gray-500">{invoice.customer_email}</div>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <Badge className={getStatusColor(invoice.status)}>
+                      {invoice.status}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatDate(invoice.issue_date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {formatDate(invoice.due_date)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    ${invoice.total_amount.toFixed(2)}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <div className="flex space-x-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(invoice)}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(invoice)}
+                        className="text-red-600 hover:text-red-700"
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Delete Confirmation Dialog */}
+      {invoiceToDelete && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Invoice</h3>
+            <p className="text-gray-600 mb-4">
+              Are you sure you want to delete invoice "{invoiceToDelete.invoice_number}"? 
+              This will also delete all invoice items and cannot be undone.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <Button
+                variant="outline"
+                onClick={() => setInvoiceToDelete(null)}
+                disabled={isDeleting}
+                className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="bg-red-600 text-white hover:bg-red-700"
+              >
+                {isDeleting ? 'Deleting...' : 'Delete'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Invoice Form */}
+      <InvoiceForm
+        open={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false)
+          setSelectedInvoice(undefined)
+        }}
+        onSuccess={() => {
+          onRefresh()
+          setIsFormOpen(false)
+          setSelectedInvoice(undefined)
+        }}
+        invoice={selectedInvoice}
+      />
+    </>
+  )
+}
