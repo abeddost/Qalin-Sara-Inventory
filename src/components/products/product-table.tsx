@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
-import { ProductForm } from './product-form'
+import { ProductFormWizard } from './product-form-wizard'
 import { ImagePreview } from './image-preview'
 import { CARPET_SIZES } from '@/lib/constants'
 import { toast } from 'sonner'
@@ -205,9 +205,9 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
                       </Button>
                       <Button
                         size="sm"
-                        variant="ghost"
+                        variant="outline"
                         onClick={() => handleDelete(product)}
-                        className="text-destructive hover:text-destructive"
+                        className="bg-white border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
                       >
                         <Trash2 className="h-4 w-4" />
                       </Button>
@@ -243,7 +243,7 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
       )}
 
       {/* Product Form */}
-      <ProductForm
+      <ProductFormWizard
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         product={selectedProduct}
@@ -255,20 +255,20 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
 
       {/* Delete Confirmation */}
       <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white border-gray-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Product</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-gray-900">Delete Product</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-600">
               Are you sure you want to delete product "{productToDelete?.code}"? 
               This will also delete all size entries and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting} className="bg-white border-gray-300 text-gray-700 hover:bg-gray-50">Cancel</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDelete}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-red-600 text-white hover:bg-red-700"
             >
               {isDeleting ? 'Deleting...' : 'Delete'}
             </AlertDialogAction>

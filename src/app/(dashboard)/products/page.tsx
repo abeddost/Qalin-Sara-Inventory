@@ -6,7 +6,7 @@ import { Header } from '@/components/layout/header'
 import { MetricsOverview } from '@/components/dashboard/metrics-overview'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ProductTable } from '@/components/products/product-table'
-import { ProductForm } from '@/components/products/product-form'
+import { ProductFormWizard } from '@/components/products/product-form-wizard'
 import type { ProductWithSizes } from '@/types/database'
 
 export default function ProductsPage() {
@@ -80,7 +80,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Add Product Form */}
-        <ProductForm
+        <ProductFormWizard
           open={isFormOpen}
           onOpenChange={setIsFormOpen}
           onSuccess={fetchProducts}
