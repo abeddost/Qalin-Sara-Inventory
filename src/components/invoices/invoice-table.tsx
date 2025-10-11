@@ -6,7 +6,9 @@ import { Badge } from '@/components/ui/badge'
 import { InvoiceWithItems } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
+import { Eye, Edit, Trash2 } from 'lucide-react'
 import InvoiceForm from './invoice-form'
+import InvoiceView from './invoice-view'
 
 interface InvoiceTableProps {
   invoices: InvoiceWithItems[]
@@ -15,7 +17,9 @@ interface InvoiceTableProps {
 
 export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps) {
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
+  const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isViewOpen, setIsViewOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [invoiceToDelete, setInvoiceToDelete] = useState<InvoiceWithItems | null>(null)
   
@@ -35,6 +39,11 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
   const handleEdit = (invoice: InvoiceWithItems) => {
     setSelectedInvoice(invoice)
     setIsFormOpen(true)
+  }
+
+  const handleView = (invoice: InvoiceWithItems) => {
+    setViewInvoice(invoice)
+    setIsViewOpen(true)
   }
 
   const handleDelete = async (invoice: InvoiceWithItems) => {
@@ -141,8 +150,18 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
                       <Button
                         variant="outline"
                         size="sm"
+                        onClick={() => handleView(invoice)}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        View
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => handleEdit(invoice)}
                       >
+                        <Edit className="h-4 w-4 mr-1" />
                         Edit
                       </Button>
                       <Button
@@ -151,6 +170,7 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
                         onClick={() => handleDelete(invoice)}
                         className="text-red-600 hover:text-red-700"
                       >
+                        <Trash2 className="h-4 w-4 mr-1" />
                         Delete
                       </Button>
                     </div>
@@ -205,6 +225,16 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
           setSelectedInvoice(undefined)
         }}
         invoice={selectedInvoice}
+      />
+
+      {/* Invoice View */}
+      <InvoiceView
+        open={isViewOpen}
+        onClose={() => {
+          setIsViewOpen(false)
+          setViewInvoice(undefined)
+        }}
+        invoice={viewInvoice}
       />
     </>
   )

@@ -210,7 +210,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
     return { subtotal, discountAmount, taxAmount, totalAmount }
   }
 
-  const handleOrderChange = (orderId: string) => {
+  const handleOrderChange = async (orderId: string) => {
     setSelectedOrderId(orderId)
     if (orderId) {
       const selectedOrder = orders.find(o => o.id === orderId)
@@ -223,10 +223,49 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           customer_address: selectedOrder.customer_address || ''
         }))
         
-        // Clear existing items and add order items
-        setInvoiceItems([])
-        // Note: You might want to fetch order items here and convert them to invoice items
+        // Fetch order items and convert them to invoice items
+        try {
+          const { data: orderItems, error } = await supabase
+            .from('order_items')
+            .select(`
+              *,
+              products (
+                id,
+                code
+              )
+            `)
+            .eq('order_id', orderId)
+
+          if (error) throw error
+
+          if (orderItems && orderItems.length > 0) {
+            const convertedItems: InvoiceItemWithTemp[] = orderItems.map((item, index) => ({
+              temp_id: `temp-${Date.now()}-${index}`,
+              invoice_id: '',
+              product_id: item.product_id,
+              product_code: item.products?.code || '',
+              product_size: item.product_size,
+              description: '',
+              quantity: item.quantity,
+              unit_price: item.unit_price,
+              total_price: item.total_price
+            }))
+            
+            setInvoiceItems(convertedItems)
+            setRenderKey(prev => prev + 1)
+            toast.success(`Loaded ${convertedItems.length} items from order`)
+          } else {
+            setInvoiceItems([])
+            toast.info('No items found in selected order')
+          }
+        } catch (error) {
+          console.error('Error fetching order items:', error)
+          toast.error('Failed to load order items')
+          setInvoiceItems([])
+        }
       }
+    } else {
+      setInvoiceItems([])
     }
   }
 
@@ -376,19 +415,37 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
             <div>
               <Label htmlFor="order_id">Related Order (Optional)</Label>
-              <select
-                id="order_id"
-                value={selectedOrderId}
-                onChange={(e) => handleOrderChange(e.target.value)}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select an order</option>
-                {orders.map(order => (
-                  <option key={order.id} value={order.id}>
-                    {order.order_number} - {order.customer_name}
-                  </option>
-                ))}
-              </select>
+              <div className="flex space-x-2">
+                <select
+                  id="order_id"
+                  value={selectedOrderId}
+                  onChange={(e) => handleOrderChange(e.target.value)}
+                  className="mt-1 flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="">Select an order</option>
+                  {orders.map(order => (
+                    <option key={order.id} value={order.id}>
+                      {order.order_number} - {order.customer_name}
+                    </option>
+                  ))}
+                </select>
+                {selectedOrderId && (
+                  <Button
+                    type="button"
+                    onClick={() => handleOrderChange('')}
+                    variant="outline"
+                    size="sm"
+                    className="mt-1 bg-white border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+              {selectedOrderId && (
+                <p className="text-sm text-blue-600 mt-1">
+                  ✓ Order selected - Customer details and items loaded
+                </p>
+              )}
             </div>
 
             <div>
