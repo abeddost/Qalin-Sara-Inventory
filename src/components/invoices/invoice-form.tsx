@@ -403,7 +403,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="invoice_number">Invoice Number</Label>
+              <Label htmlFor="invoice_number" className="mb-2">Invoice Number</Label>
               <Input
                 id="invoice_number"
                 value={formData.invoice_number}
@@ -414,7 +414,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             </div>
 
             <div>
-              <Label htmlFor="order_id">Related Order (Optional)</Label>
+              <Label htmlFor="order_id" className="mb-2">Related Order (Optional)</Label>
               <div className="flex space-x-2">
                 <select
                   id="order_id"
@@ -449,7 +449,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             </div>
 
             <div>
-              <Label htmlFor="status">Status</Label>
+              <Label htmlFor="status" className="mb-2">Status</Label>
               <select
                 id="status"
                 value={formData.status}
@@ -465,7 +465,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             </div>
 
             <div>
-              <Label htmlFor="issue_date">Issue Date</Label>
+              <Label htmlFor="issue_date" className="mb-2">Issue Date</Label>
               <Input
                 id="issue_date"
                 type="date"
@@ -477,7 +477,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             </div>
 
             <div>
-              <Label htmlFor="due_date">Due Date</Label>
+              <Label htmlFor="due_date" className="mb-2">Due Date</Label>
               <Input
                 id="due_date"
                 type="date"
@@ -493,7 +493,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             <h3 className="text-lg font-medium">Customer Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="customer_name">Customer Name</Label>
+                <Label htmlFor="customer_name" className="mb-2">Customer Name</Label>
                 <Input
                   id="customer_name"
                   value={formData.customer_name}
@@ -504,7 +504,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
               </div>
 
               <div>
-                <Label htmlFor="customer_email">Customer Email</Label>
+                <Label htmlFor="customer_email" className="mb-2">Customer Email</Label>
                 <Input
                   id="customer_email"
                   type="email"
@@ -515,7 +515,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
               </div>
 
               <div>
-                <Label htmlFor="customer_phone">Customer Phone</Label>
+                <Label htmlFor="customer_phone" className="mb-2">Customer Phone</Label>
                 <Input
                   id="customer_phone"
                   value={formData.customer_phone}
@@ -525,7 +525,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
               </div>
 
               <div>
-                <Label htmlFor="customer_address">Customer Address</Label>
+                <Label htmlFor="customer_address" className="mb-2">Customer Address</Label>
                 <Textarea
                   id="customer_address"
                   value={formData.customer_address}
@@ -550,7 +550,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
               <div key={item.temp_id || `invoice-item-${index}`} className="border border-gray-200 rounded-lg p-4">
                 <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                   <div className="md:col-span-2">
-                    <Label>Product</Label>
+                    <Label className="mb-2">Product</Label>
                     <select
                       value={item.product_id}
                       onChange={(e) => {
@@ -573,7 +573,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   </div>
 
                   <div>
-                    <Label>Size</Label>
+                    <Label className="mb-2">Size</Label>
                     <select
                       value={item.product_size}
                       onChange={(e) => {
@@ -596,7 +596,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   </div>
 
                   <div>
-                    <Label>Quantity</Label>
+                    <Label className="mb-2">Quantity</Label>
                     <Input
                       type="number"
                       min="1"
@@ -607,7 +607,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   </div>
 
                   <div>
-                    <Label>Unit Price</Label>
+                    <Label className="mb-2">Unit Price</Label>
                     <Input
                       type="number"
                       step="0.01"
@@ -620,7 +620,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
                   <div className="flex items-end gap-2">
                     <div className="flex-1">
-                      <Label>Total</Label>
+                      <Label className="mb-2">Total</Label>
                       <Input
                         value={`$${item.total_price.toFixed(2)}`}
                         readOnly
@@ -640,7 +640,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                 </div>
 
                 <div className="mt-2">
-                  <Label>Description (Optional)</Label>
+                  <Label className="mb-2">Description (Optional)</Label>
                   <Input
                     value={item.description || ''}
                     onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
@@ -675,7 +675,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
-                <Label htmlFor="discount_amount">Discount Amount</Label>
+                <Label htmlFor="discount_amount" className="mb-2">Discount Amount</Label>
                 <Input
                   id="discount_amount"
                   type="number"
@@ -688,7 +688,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
               </div>
 
               <div>
-                <Label htmlFor="tax_rate">Tax Rate (%)</Label>
+                <Label htmlFor="tax_rate" className="mb-2">Tax Rate (%)</Label>
                 <Input
                   id="tax_rate"
                   type="number"
@@ -704,7 +704,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
           {/* Notes */}
           <div>
-            <Label htmlFor="notes">Notes</Label>
+            <Label htmlFor="notes" className="mb-2">Notes</Label>
             <Textarea
               id="notes"
               value={formData.notes}
