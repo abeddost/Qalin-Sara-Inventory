@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/lib/supabase/client'
 import { Expense, ExpenseInsert, ExpenseCategory } from '@/types/database'
 import { toast } from 'sonner'
+import { useTheme } from '@/components/providers/theme-provider'
 import { Upload, Receipt, Calendar, DollarSign, Tag } from 'lucide-react'
 
 interface ExpenseFormProps {
@@ -19,6 +20,7 @@ interface ExpenseFormProps {
 }
 
 export default function ExpenseForm({ open, onClose, onSuccess, expense }: ExpenseFormProps) {
+  const { theme } = useTheme()
   const [formData, setFormData] = useState({
     expense_number: '',
     category_id: '',
@@ -181,9 +183,18 @@ export default function ExpenseForm({ open, onClose, onSuccess, expense }: Expen
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-gray-200">
+      <DialogContent 
+        className="max-w-2xl max-h-[90vh] overflow-y-auto shadow-xl"
+        style={{
+          backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+          borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-gray-900 flex items-center space-x-2">
+          <DialogTitle 
+            className="flex items-center space-x-2"
+            style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+          >
             <Receipt className="h-5 w-5" />
             <span>{expense ? 'Edit Expense' : 'Add New Expense'}</span>
           </DialogTitle>

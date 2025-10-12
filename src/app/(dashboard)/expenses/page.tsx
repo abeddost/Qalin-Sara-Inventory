@@ -93,8 +93,18 @@ export default function ExpensesPage() {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Expense Management</h1>
-            <p className="text-gray-600 mt-2">Track and manage business expenses with full categorization and reporting</p>
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Expense Management
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+            >
+              Track and manage business expenses with full categorization and reporting
+            </p>
           </div>
           <Button 
             onClick={handleAddExpense}

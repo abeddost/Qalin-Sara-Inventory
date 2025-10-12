@@ -347,13 +347,24 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="order_number" className="mb-2">Order Number</Label>
+                  <Label 
+                    htmlFor="order_number" 
+                    className="mb-2"
+                    style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                  >
+                    Order Number
+                  </Label>
                   <Input
                     id="order_number"
                     value={formData.order_number}
                     onChange={(e) => setFormData({...formData, order_number: e.target.value})}
                     required
                     className="mt-1"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   />
                 </div>
                 <div>
@@ -400,32 +411,65 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="customer_name" className="mb-2">Customer Name *</Label>
+                  <Label 
+                    htmlFor="customer_name" 
+                    className="mb-2"
+                    style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                  >
+                    Customer Name *
+                  </Label>
                   <Input
                     id="customer_name"
                     value={formData.customer_name}
                     onChange={(e) => setFormData({...formData, customer_name: e.target.value})}
                     required
                     className="mt-1"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="customer_email" className="mb-2">Email</Label>
+                  <Label 
+                    htmlFor="customer_email" 
+                    className="mb-2"
+                    style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                  >
+                    Email
+                  </Label>
                   <Input
                     id="customer_email"
                     type="email"
                     value={formData.customer_email}
                     onChange={(e) => setFormData({...formData, customer_email: e.target.value})}
                     className="mt-1"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="customer_phone" className="mb-2">Phone</Label>
+                  <Label 
+                    htmlFor="customer_phone" 
+                    className="mb-2"
+                    style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                  >
+                    Phone
+                  </Label>
                   <Input
                     id="customer_phone"
                     value={formData.customer_phone}
                     onChange={(e) => setFormData({...formData, customer_phone: e.target.value})}
                     className="mt-1"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   />
                 </div>
                 <div>
@@ -552,6 +596,11 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             value={item.quantity}
                             onChange={(e) => updateOrderItem(index, 'quantity', parseInt(e.target.value) || 1)}
                             className="mt-1"
+                            style={{
+                              backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                              color: theme === 'dark' ? '#f9fafb' : '#111827',
+                              borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                            }}
                           />
                         </div>
                         
@@ -564,6 +613,11 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             value={item.unit_price}
                             onChange={(e) => updateOrderItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
                             className="mt-1"
+                            style={{
+                              backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                              color: theme === 'dark' ? '#f9fafb' : '#111827',
+                              borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                            }}
                           />
                         </div>
                         
@@ -572,7 +626,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                           <Input
                             value={`$${item.total_price.toFixed(2)}`}
                             readOnly
-                            className="mt-1 bg-gray-50"
+                            className="mt-1"
+                            style={{
+                              backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb',
+                              color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                              borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                            }}
                           />
                         </div>
                         
@@ -621,6 +680,11 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       value={formData.discount_amount}
                       onChange={(e) => setFormData({...formData, discount_amount: parseFloat(e.target.value) || 0})}
                       className="mt-1"
+                      style={{
+                        backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#111827',
+                        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                      }}
                     />
                   </div>
                   <div>
@@ -633,6 +697,11 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       value={formData.tax_amount}
                       onChange={(e) => setFormData({...formData, tax_amount: parseFloat(e.target.value) || 0})}
                       className="mt-1"
+                      style={{
+                        backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#111827',
+                        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                      }}
                     />
                   </div>
                 </div>

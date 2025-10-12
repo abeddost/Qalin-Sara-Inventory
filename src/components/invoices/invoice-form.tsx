@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/lib/supabase/client'
 import { Invoice, InvoiceItem, Product, Order } from '@/types/database'
 import { toast } from 'sonner'
+import { useTheme } from '@/components/providers/theme-provider'
 
 interface InvoiceFormProps {
   open: boolean
@@ -22,6 +23,7 @@ interface InvoiceItemWithTemp extends InvoiceItem {
 }
 
 export default function InvoiceForm({ open, onClose, onSuccess, invoice }: InvoiceFormProps) {
+  const { theme } = useTheme()
   const [formData, setFormData] = useState({
     invoice_number: '',
     customer_name: '',
@@ -392,9 +394,17 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-gray-200">
+      <DialogContent 
+        className="max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl"
+        style={{
+          backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+          borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-gray-900">
+          <DialogTitle 
+            style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+          >
             {invoice ? 'Edit Invoice' : 'Create New Invoice'}
           </DialogTitle>
         </DialogHeader>
@@ -403,25 +413,40 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           {/* Basic Information */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="invoice_number" className="mb-2">Invoice Number</Label>
+              <Label 
+                htmlFor="invoice_number" 
+                className="mb-2"
+                style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+              >
+                Invoice Number
+              </Label>
               <Input
                 id="invoice_number"
                 value={formData.invoice_number}
                 onChange={(e) => setFormData(prev => ({ ...prev, invoice_number: e.target.value }))}
                 required
-                className="bg-white"
+                style={{
+                  backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                  color: theme === 'dark' ? '#f9fafb' : '#111827',
+                  borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                }}
               />
             </div>
 
             <div>
               <Label htmlFor="order_id" className="mb-2">Related Order (Optional)</Label>
               <div className="flex space-x-2">
-                <select
-                  id="order_id"
-                  value={selectedOrderId}
-                  onChange={(e) => handleOrderChange(e.target.value)}
-                  className="mt-1 flex-1 px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
+                  <select
+                    id="order_id"
+                    value={selectedOrderId}
+                    onChange={(e) => handleOrderChange(e.target.value)}
+                    className="mt-1 flex-1 px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
+                  >
                   <option value="">Select an order</option>
                   {orders.map(order => (
                     <option key={order.id} value={order.id}>
@@ -449,12 +474,23 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             </div>
 
             <div>
-              <Label htmlFor="status" className="mb-2">Status</Label>
+              <Label 
+                htmlFor="status" 
+                className="mb-2"
+                style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+              >
+                Status
+              </Label>
               <select
                 id="status"
                 value={formData.status}
                 onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-                className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                style={{
+                  backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                  color: theme === 'dark' ? '#f9fafb' : '#111827',
+                  borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                }}
               >
                 <option value="draft">Draft</option>
                 <option value="sent">Sent</option>
@@ -472,7 +508,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                 value={formData.issue_date}
                 onChange={(e) => setFormData(prev => ({ ...prev, issue_date: e.target.value }))}
                 required
-                className="bg-white"
+                style={{
+                  backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                  color: theme === 'dark' ? '#f9fafb' : '#111827',
+                  borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                }}
               />
             </div>
 
@@ -483,55 +523,104 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                 type="date"
                 value={formData.due_date}
                 onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
-                className="bg-white"
+                style={{
+                  backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                  color: theme === 'dark' ? '#f9fafb' : '#111827',
+                  borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                }}
               />
             </div>
           </div>
 
           {/* Customer Information */}
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Customer Information</h3>
+            <h3 
+              className="text-lg font-medium"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Customer Information
+            </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="customer_name" className="mb-2">Customer Name</Label>
+                <Label 
+                  htmlFor="customer_name" 
+                  className="mb-2"
+                  style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                >
+                  Customer Name
+                </Label>
                 <Input
                   id="customer_name"
                   value={formData.customer_name}
                   onChange={(e) => setFormData(prev => ({ ...prev, customer_name: e.target.value }))}
                   required
-                  className="bg-white"
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
 
               <div>
-                <Label htmlFor="customer_email" className="mb-2">Customer Email</Label>
+                <Label 
+                  htmlFor="customer_email" 
+                  className="mb-2"
+                  style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                >
+                  Customer Email
+                </Label>
                 <Input
                   id="customer_email"
                   type="email"
                   value={formData.customer_email}
                   onChange={(e) => setFormData(prev => ({ ...prev, customer_email: e.target.value }))}
-                  className="bg-white"
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
 
               <div>
-                <Label htmlFor="customer_phone" className="mb-2">Customer Phone</Label>
+                <Label 
+                  htmlFor="customer_phone" 
+                  className="mb-2"
+                  style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                >
+                  Customer Phone
+                </Label>
                 <Input
                   id="customer_phone"
                   value={formData.customer_phone}
                   onChange={(e) => setFormData(prev => ({ ...prev, customer_phone: e.target.value }))}
-                  className="bg-white"
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
 
               <div>
-                <Label htmlFor="customer_address" className="mb-2">Customer Address</Label>
+                <Label 
+                  htmlFor="customer_address" 
+                  className="mb-2"
+                  style={{ color: theme === 'dark' ? '#f5f5f5' : '#111827' }}
+                >
+                  Customer Address
+                </Label>
                 <Textarea
                   id="customer_address"
                   value={formData.customer_address}
                   onChange={(e) => setFormData(prev => ({ ...prev, customer_address: e.target.value }))}
-                  className="bg-white"
                   rows={3}
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
             </div>
@@ -602,7 +691,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                       min="1"
                       value={item.quantity}
                       onChange={(e) => updateInvoiceItem(index, 'quantity', parseInt(e.target.value) || 1)}
-                      className="bg-white"
+                      style={{
+                        backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#111827',
+                        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                      }}
                     />
                   </div>
 
@@ -614,7 +707,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                       min="0"
                       value={item.unit_price}
                       onChange={(e) => updateInvoiceItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
-                      className="bg-white"
+                      style={{
+                        backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                        color: theme === 'dark' ? '#f9fafb' : '#111827',
+                        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                      }}
                     />
                   </div>
 
@@ -624,7 +721,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                       <Input
                         value={`$${item.total_price.toFixed(2)}`}
                         readOnly
-                        className="bg-gray-50"
+                        style={{
+                          backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb',
+                          color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                          borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                        }}
                       />
                     </div>
                     <Button
@@ -645,7 +746,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                     value={item.description || ''}
                     onChange={(e) => updateInvoiceItem(index, 'description', e.target.value)}
                     placeholder="Additional item description"
-                    className="bg-white"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   />
                 </div>
               </div>
@@ -683,7 +788,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   min="0"
                   value={formData.discount_amount}
                   onChange={(e) => setFormData(prev => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
-                  className="bg-white"
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
 
@@ -696,7 +805,11 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   min="0"
                   value={formData.tax_rate}
                   onChange={(e) => setFormData(prev => ({ ...prev, tax_rate: parseFloat(e.target.value) || 0 }))}
-                  className="bg-white"
+                  style={{
+                    backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                    color: theme === 'dark' ? '#f9fafb' : '#111827',
+                    borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                  }}
                 />
               </div>
             </div>

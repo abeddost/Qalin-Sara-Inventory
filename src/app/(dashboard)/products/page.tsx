@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Header } from '@/components/layout/header'
 import { MetricsOverview } from '@/components/dashboard/metrics-overview'
-import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ProductTable } from '@/components/products/product-table'
 import { ProductFormWizard } from '@/components/products/product-form-wizard'
 import { useTheme } from '@/components/providers/theme-provider'
@@ -76,9 +75,6 @@ export default function ProductsPage() {
       <div className="p-6">
         {/* Key Metrics */}
         <MetricsOverview products={products} />
-
-        {/* Quick Actions */}
-        <QuickActions onAddProduct={() => setIsFormOpen(true)} />
 
         {/* Products Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
