@@ -18,7 +18,7 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       <Sidebar user={user} />
       <div className="flex-1 lg:ml-0">
         {/* Pass user to children through context or props */}

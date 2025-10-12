@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   Plus, 
   Search, 
@@ -31,6 +32,7 @@ import { OrderForm } from '@/components/orders/order-form'
 import type { OrderWithItems, ProductWithSizes } from '@/types/database'
 
 export default function OrdersPage() {
+  const { theme } = useTheme()
   const [orders, setOrders] = useState<OrderWithItems[]>([])
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -203,11 +205,15 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading orders...</p>
+            <p 
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+            >
+              Loading orders...
+            </p>
           </div>
         </div>
       </div>
@@ -215,14 +221,30 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Orders Management</h1>
-            <p className="text-gray-600 mt-2">Track and manage customer orders</p>
-            <div className="mt-2 text-sm text-green-600 bg-green-50 px-3 py-1 rounded-full inline-block">
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Orders Management
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+            >
+              Track and manage customer orders
+            </p>
+            <div 
+              className="mt-2 text-sm px-3 py-1 rounded-full inline-block"
+              style={{ 
+                color: theme === 'dark' ? '#10b981' : '#059669',
+                backgroundColor: theme === 'dark' ? '#064e3b' : '#d1fae5'
+              }}
+            >
               ✅ Database ready - Orders system active
             </div>
           </div>

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   LogOut, 
   Package, 
@@ -35,6 +36,7 @@ const navigation = [
 ]
 
 export function Sidebar({ user }: SidebarProps) {
+  const { theme } = useTheme()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
@@ -69,14 +71,23 @@ export function Sidebar({ user }: SidebarProps) {
       )}
 
       {/* Sidebar */}
-      <div className={`
-        fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-700 transform transition-transform duration-300 ease-in-out
-        lg:translate-x-0 lg:static lg:inset-0
-        ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}
-      `}>
+      <div 
+        className={`
+          fixed inset-y-0 left-0 z-50 w-64 border-r transform transition-transform duration-300 ease-in-out
+          lg:translate-x-0 lg:static lg:inset-0
+          ${isCollapsed ? '-translate-x-full' : 'translate-x-0'}
+        `}
+        style={{
+          backgroundColor: theme === 'dark' ? '#1e3a8a' : '#1e293b',
+          borderColor: theme === 'dark' ? '#1e40af' : '#334155'
+        }}
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-slate-700">
+          <div 
+            className="flex items-center justify-between p-4 border-b"
+            style={{ borderColor: theme === 'dark' ? '#1e40af' : '#334155' }}
+          >
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-lg flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-white" />
@@ -128,9 +139,23 @@ export function Sidebar({ user }: SidebarProps) {
                     flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors group
                     ${isActive 
                       ? 'bg-blue-600 text-white' 
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                      : 'hover:text-white'
                     }
                   `}
+                  style={{
+                    color: isActive ? '#ffffff' : (theme === 'dark' ? '#cbd5e1' : '#94a3b8'),
+                    backgroundColor: isActive ? '#2563eb' : 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e40af' : '#334155'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!isActive) {
+                      e.currentTarget.style.backgroundColor = 'transparent'
+                    }
+                  }}
                 >
                   <div className="flex items-center space-x-3">
                     <item.icon className="h-5 w-5" />
@@ -143,12 +168,27 @@ export function Sidebar({ user }: SidebarProps) {
           </nav>
 
           {/* Sign Out */}
-          <div className="p-4 border-t border-slate-700">
+          <div 
+            className="p-4 border-t"
+            style={{ borderColor: theme === 'dark' ? '#1e40af' : '#334155' }}
+          >
             <Button
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="w-full justify-start text-slate-300 hover:text-white hover:bg-slate-800"
+              className="w-full justify-start"
+              style={{
+                color: theme === 'dark' ? '#cbd5e1' : '#94a3b8',
+                backgroundColor: 'transparent'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1e40af' : '#334155'
+                e.currentTarget.style.color = '#ffffff'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.color = theme === 'dark' ? '#cbd5e1' : '#94a3b8'
+              }}
             >
               <LogOut className="h-4 w-4 mr-3" />
               Sign Out

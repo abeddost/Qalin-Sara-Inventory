@@ -7,9 +7,11 @@ import { MetricsOverview } from '@/components/dashboard/metrics-overview'
 import { QuickActions } from '@/components/dashboard/quick-actions'
 import { ProductTable } from '@/components/products/product-table'
 import { ProductFormWizard } from '@/components/products/product-form-wizard'
+import { useTheme } from '@/components/providers/theme-provider'
 import type { ProductWithSizes } from '@/types/database'
 
 export default function ProductsPage() {
+  const { theme } = useTheme()
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -50,12 +52,16 @@ export default function ProductsPage() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <div className="p-6">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-slate-600 mx-auto mb-4"></div>
-              <p className="text-gray-500">Loading dashboard...</p>
+              <p 
+                style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+              >
+                Loading dashboard...
+              </p>
             </div>
           </div>
         </div>
@@ -64,7 +70,7 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Header onAddProduct={() => setIsFormOpen(true)} user={user} />
       
       <div className="p-6">

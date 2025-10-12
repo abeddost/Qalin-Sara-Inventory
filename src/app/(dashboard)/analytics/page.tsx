@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -37,6 +38,7 @@ interface AnalyticsData {
 }
 
 export default function AnalyticsPage() {
+  const { theme } = useTheme()
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -132,11 +134,15 @@ export default function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen p-6">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-500">Loading analytics...</p>
+            <p 
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+            >
+              Loading analytics...
+            </p>
           </div>
         </div>
       </div>
@@ -145,11 +151,23 @@ export default function AnalyticsPage() {
 
   if (!analyticsData) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen p-6">
         <div className="text-center">
-          <AlertCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No Data Available</h3>
-          <p className="text-gray-500">Add some products to see analytics</p>
+          <AlertCircle 
+            className="h-12 w-12 mx-auto mb-4"
+            style={{ color: theme === 'dark' ? '#6b7280' : '#9ca3af' }}
+          />
+          <h3 
+            className="text-lg font-semibold mb-2"
+            style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+          >
+            No Data Available
+          </h3>
+          <p 
+            style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+          >
+            Add some products to see analytics
+          </p>
         </div>
       </div>
     )
@@ -214,13 +232,23 @@ export default function AnalyticsPage() {
   ]
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Analytics Dashboard</h1>
-            <p className="text-gray-600 mt-2">Comprehensive insights into your inventory performance</p>
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Analytics Dashboard
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+            >
+              Comprehensive insights into your inventory performance
+            </p>
           </div>
           
           {/* Time Range Selector */}

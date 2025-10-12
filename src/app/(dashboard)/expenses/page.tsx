@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   Plus, 
   DollarSign, 
@@ -20,6 +21,7 @@ import ExpenseTable from '@/components/expenses/expense-table'
 import { toast } from 'sonner'
 
 export default function ExpensesPage() {
+  const { theme } = useTheme()
   const [expenses, setExpenses] = useState<ExpenseWithCategory[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -86,7 +88,7 @@ export default function ExpensesPage() {
     .reduce((sum, exp) => sum + exp.amount, 0)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">

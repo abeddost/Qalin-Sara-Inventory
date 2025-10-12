@@ -7,6 +7,7 @@ import { InvoiceWithItems } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Eye, Edit, Trash2 } from 'lucide-react'
+import { useTheme } from '@/components/providers/theme-provider'
 import InvoiceForm from './invoice-form'
 import InvoiceView from './invoice-view'
 
@@ -16,6 +17,7 @@ interface InvoiceTableProps {
 }
 
 export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps) {
+  const { theme } = useTheme()
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -106,45 +108,101 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
 
   return (
     <>
-      <div className="bg-white rounded-lg shadow">
+      <div 
+        className="rounded-lg shadow"
+        style={{
+          backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+          border: theme === 'dark' ? '1px solid #374151' : 'none'
+        }}
+      >
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-50">
+          <table className="min-w-full divide-y" style={{ borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' }}>
+            <thead style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb' }}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Invoice #
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Issue Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Due Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Total
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th 
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
+                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                >
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="divide-y" style={{ borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' }}>
               {invoices.map((invoice) => (
-                <tr key={invoice.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr 
+                  key={invoice.id}
+                  className="hover:bg-opacity-80 transition-colors"
+                  style={{ 
+                    backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+                    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#111827' : '#ffffff'
+                  }}
+                >
+                  <td 
+                    className="px-6 py-4 whitespace-nowrap text-sm font-medium"
+                    style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                  >
                     {invoice.invoice_number}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td 
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                  >
                     <div>
-                      <div className="font-medium">{invoice.customer_name}</div>
+                      <div 
+                        className="font-medium"
+                        style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                      >
+                        {invoice.customer_name}
+                      </div>
                       {invoice.customer_email && (
-                        <div className="text-gray-500">{invoice.customer_email}</div>
+                        <div 
+                          className="text-sm"
+                          style={{ color: theme === 'dark' ? '#9ca3af' : '#6b7280' }}
+                        >
+                          {invoice.customer_email}
+                        </div>
                       )}
                     </div>
                   </td>
@@ -161,13 +219,22 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
                       <option value="cancelled">Cancelled</option>
                     </select>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td 
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                  >
                     {formatDate(invoice.issue_date)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td 
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                  >
                     {formatDate(invoice.due_date)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td 
+                    className="px-6 py-4 whitespace-nowrap text-sm"
+                    style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+                  >
                     ${invoice.total_amount.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -210,9 +277,23 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
       {/* Delete Confirmation Dialog */}
       {invoiceToDelete && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[10000]">
-          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete Invoice</h3>
-            <p className="text-gray-600 mb-4">
+          <div 
+            className="rounded-lg p-6 max-w-md w-full mx-4"
+            style={{
+              backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+              border: theme === 'dark' ? '1px solid #374151' : 'none'
+            }}
+          >
+            <h3 
+              className="text-lg font-semibold mb-2"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Delete Invoice
+            </h3>
+            <p 
+              className="mb-4"
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+            >
               Are you sure you want to delete invoice "{invoiceToDelete.invoice_number}"? 
               This will also delete all invoice items and cannot be undone.
             </p>

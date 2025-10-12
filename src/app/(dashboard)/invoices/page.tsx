@@ -10,8 +10,10 @@ import { toast } from 'sonner'
 import InvoiceForm from '@/components/invoices/invoice-form'
 import InvoiceTable from '@/components/invoices/invoice-table'
 import { Plus, FileText, DollarSign, TrendingUp, Calendar } from 'lucide-react'
+import { useTheme } from '@/components/providers/theme-provider'
 
 export default function InvoicesPage() {
+  const { theme } = useTheme()
   const [invoices, setInvoices] = useState<InvoiceWithItems[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -69,12 +71,17 @@ export default function InvoicesPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <div className="container mx-auto px-4 py-8">
           <div className="flex justify-center items-center h-64">
             <div className="text-center">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <p className="mt-4 text-gray-600">Loading invoices...</p>
+              <p 
+                className="mt-4"
+                style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+              >
+                Loading invoices...
+              </p>
             </div>
           </div>
         </div>
@@ -83,13 +90,23 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Invoice Management</h1>
-            <p className="text-gray-600 mt-2">Create, manage, and track your invoices</p>
+            <h1 
+              className="text-3xl font-bold"
+              style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+            >
+              Invoice Management
+            </h1>
+            <p 
+              className="mt-2"
+              style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
+            >
+              Create, manage, and track your invoices
+            </p>
           </div>
           <Button
             onClick={() => setIsFormOpen(true)}

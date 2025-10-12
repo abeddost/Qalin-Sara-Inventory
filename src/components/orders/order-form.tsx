@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   Plus, 
   Trash2, 
@@ -43,6 +44,7 @@ interface OrderItem {
 }
 
 export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormProps) {
+  const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [formData, setFormData] = useState({
@@ -312,16 +314,30 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl">
+      <DialogContent 
+        className="max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl"
+        style={{
+          backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
+          borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+        }}
+      >
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-gray-900">
+          <DialogTitle 
+            className="text-2xl font-bold"
+            style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
+          >
             {order ? 'Edit Order' : 'Create New Order'}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-6" key={renderKey}>
           {/* Order Details */}
-          <Card className="bg-white border-gray-200">
+          <Card 
+            style={{
+              backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+              borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+            }}
+          >
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <ShoppingCart className="h-5 w-5" />
@@ -349,7 +365,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       console.log('Status selected:', e.target.value)
                       setFormData({...formData, status: e.target.value as any})
                     }}
-                    className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                   >
                     <option value="pending">Pending</option>
                     <option value="confirmed">Confirmed</option>
@@ -364,7 +385,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           </Card>
 
           {/* Customer Information */}
-          <Card className="bg-white border-gray-200">
+          <Card 
+            style={{
+              backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+              borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+            }}
+          >
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <User className="h-5 w-5" />
@@ -417,7 +443,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           </Card>
 
           {/* Order Items */}
-          <Card className="bg-white border-gray-200">
+          <Card 
+            style={{
+              backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+              borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+            }}
+          >
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
@@ -467,7 +498,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             onClick={(e) => {
                               console.log('Product dropdown clicked')
                             }}
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                            className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    style={{
+                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                      color: theme === 'dark' ? '#f9fafb' : '#111827',
+                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                    }}
                           >
                             <option value="">Select product</option>
                             <option value="test">Test Product (Debug)</option>
@@ -492,7 +528,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                               updateOrderItem(index, 'unit_price', price)
                             }}
                             disabled={!item.product_id}
-                            className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:text-gray-500"
+                            className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+                            style={{
+                              backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                              color: theme === 'dark' ? '#f9fafb' : '#111827',
+                              borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                            }}
                           >
                             <option value="">Select size</option>
                             {getProductSizes(item.product_id).map(size => (
@@ -555,7 +596,12 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           </Card>
 
           {/* Order Summary */}
-          <Card className="bg-white border-gray-200">
+          <Card 
+            style={{
+              backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+              borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+            }}
+          >
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
                 <DollarSign className="h-5 w-5" />
