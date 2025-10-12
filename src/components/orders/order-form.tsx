@@ -331,7 +331,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="order_number">Order Number</Label>
+                  <Label htmlFor="order_number" className="mb-2">Order Number</Label>
                   <Input
                     id="order_number"
                     value={formData.order_number}
@@ -341,7 +341,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                   />
                 </div>
                 <div>
-                  <Label htmlFor="status">Status</Label>
+                  <Label htmlFor="status" className="mb-2">Status</Label>
                   <select
                     id="status"
                     value={formData.status}
@@ -374,7 +374,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="customer_name">Customer Name *</Label>
+                  <Label htmlFor="customer_name" className="mb-2">Customer Name *</Label>
                   <Input
                     id="customer_name"
                     value={formData.customer_name}
@@ -384,7 +384,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                   />
                 </div>
                 <div>
-                  <Label htmlFor="customer_email">Email</Label>
+                  <Label htmlFor="customer_email" className="mb-2">Email</Label>
                   <Input
                     id="customer_email"
                     type="email"
@@ -394,7 +394,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                   />
                 </div>
                 <div>
-                  <Label htmlFor="customer_phone">Phone</Label>
+                  <Label htmlFor="customer_phone" className="mb-2">Phone</Label>
                   <Input
                     id="customer_phone"
                     value={formData.customer_phone}
@@ -403,7 +403,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                   />
                 </div>
                 <div>
-                  <Label htmlFor="customer_address">Address</Label>
+                  <Label htmlFor="customer_address" className="mb-2">Address</Label>
                   <Textarea
                     id="customer_address"
                     value={formData.customer_address}
@@ -443,7 +443,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                     <div key={item.temp_id || `order-item-${index}`} className="border border-gray-200 rounded-lg p-4">
                       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                         <div>
-                          <Label>Product</Label>
+                          <Label className="mb-2">Product</Label>
                           <button 
                             type="button" 
                             onClick={() => {
@@ -483,7 +483,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         </div>
                         
                         <div>
-                          <Label>Size</Label>
+                          <Label className="mb-2">Size</Label>
                           <select
                             value={item.product_size}
                             onChange={(e) => {
@@ -504,7 +504,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         </div>
                         
                         <div>
-                          <Label>Quantity</Label>
+                          <Label className="mb-2">Quantity</Label>
                           <Input
                             type="number"
                             min="1"
@@ -515,7 +515,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         </div>
                         
                         <div>
-                          <Label>Unit Price</Label>
+                          <Label className="mb-2">Unit Price</Label>
                           <Input
                             type="number"
                             min="0"
@@ -527,7 +527,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         </div>
                         
                         <div>
-                          <Label>Total</Label>
+                          <Label className="mb-2">Total</Label>
                           <Input
                             value={`$${item.total_price.toFixed(2)}`}
                             readOnly
@@ -566,7 +566,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="discount_amount">Discount Amount</Label>
+                    <Label htmlFor="discount_amount" className="mb-2">Discount Amount</Label>
                     <Input
                       id="discount_amount"
                       type="number"
@@ -578,7 +578,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                     />
                   </div>
                   <div>
-                    <Label htmlFor="tax_amount">Tax Amount</Label>
+                    <Label htmlFor="tax_amount" className="mb-2">Tax Amount</Label>
                     <Input
                       id="tax_amount"
                       type="number"
@@ -611,7 +611,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                 </div>
                 
                 <div>
-                  <Label htmlFor="notes">Notes</Label>
+                  <Label htmlFor="notes" className="mb-2">Notes</Label>
                   <Textarea
                     id="notes"
                     value={formData.notes}
