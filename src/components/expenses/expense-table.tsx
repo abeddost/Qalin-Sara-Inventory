@@ -17,7 +17,8 @@ import {
   DollarSign,
   Receipt,
   Download,
-  ChevronDown
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -130,10 +131,19 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
-  const [sortBy, setSortBy] = useState<'date' | 'amount' | 'vendor'>('date')
+  const [sortBy, setSortBy] = useState<'expense_name' | 'category' | 'amount' | 'date' | 'status' | 'payment_method'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
   const supabase = createClient()
+
+  const handleSort = (column: 'expense_name' | 'category' | 'amount' | 'date' | 'status' | 'payment_method') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
 
   const getStatusColor = (status: string) => {
     if (theme === 'dark') {
@@ -180,14 +190,23 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
       let comparison = 0
       
       switch (sortBy) {
-        case 'date':
-          comparison = new Date(a.expense_date).getTime() - new Date(b.expense_date).getTime()
+        case 'expense_name':
+          comparison = (a.expense_name || '').localeCompare(b.expense_name || '')
+          break
+        case 'category':
+          comparison = (a.category?.name || '').localeCompare(b.category?.name || '')
           break
         case 'amount':
           comparison = a.amount - b.amount
           break
-        case 'vendor':
-          comparison = (a.vendor_name || '').localeCompare(b.vendor_name || '')
+        case 'date':
+          comparison = new Date(a.expense_date).getTime() - new Date(b.expense_date).getTime()
+          break
+        case 'status':
+          comparison = a.status.localeCompare(b.status)
+          break
+        case 'payment_method':
+          comparison = (a.payment_method || '').localeCompare(b.payment_method || '')
           break
       }
       
@@ -365,51 +384,149 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
       </div>
 
       {/* Expenses Table */}
-      <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+      <div className={`rounded-lg border overflow-hidden ${
+        theme === 'dark' 
+          ? 'bg-gray-900 border-gray-700' 
+          : 'bg-white border-gray-200'
+      }`}>
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className={`border-b ${
+              theme === 'dark' 
+                ? 'bg-gray-800 border-gray-700' 
+                : 'bg-gray-50 border-gray-200'
+            }`}>
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Expense
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('expense_name')}
+                >
+                  <div className="flex items-center gap-1">
+                    Expense
+                    {sortBy === 'expense_name' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Category
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('category')}
+                >
+                  <div className="flex items-center gap-1">
+                    Category
+                    {sortBy === 'category' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Amount
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('amount')}
+                >
+                  <div className="flex items-center gap-1">
+                    Amount
+                    {sortBy === 'amount' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Date
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('date')}
+                >
+                  <div className="flex items-center gap-1">
+                    Date
+                    {sortBy === 'date' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Status
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('status')}
+                >
+                  <div className="flex items-center gap-1">
+                    Status
+                    {sortBy === 'status' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Payment
+                <th 
+                  className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer select-none ${
+                    theme === 'dark' 
+                      ? 'text-gray-300 hover:bg-gray-700' 
+                      : 'text-gray-500 hover:bg-gray-100'
+                  }`}
+                  onClick={() => handleSort('payment_method')}
+                >
+                  <div className="flex items-center gap-1">
+                    Payment
+                    {sortBy === 'payment_method' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className={`px-6 py-3 text-left text-xs font-medium uppercase tracking-wider ${
+                  theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                }`}>
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className={`divide-y ${
+              theme === 'dark' 
+                ? 'bg-gray-900 divide-gray-700' 
+                : 'bg-white divide-gray-200'
+            }`}>
               {filteredExpenses.map((expense) => (
-                <tr key={expense.id} className="hover:bg-gray-50">
+                <tr key={expense.id} className={`${
+                  theme === 'dark' ? 'hover:bg-gray-800' : 'hover:bg-gray-50'
+                }`}>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-3">
-                        <Receipt className="h-5 w-5 text-green-600" />
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${
+                        theme === 'dark' ? 'bg-green-900' : 'bg-green-100'
+                      }`}>
+                        <Receipt className={`h-5 w-5 ${
+                          theme === 'dark' ? 'text-green-300' : 'text-green-600'
+                        }`} />
                       </div>
                       <div>
-                        <div className="text-sm font-medium text-gray-900">
+                        <div className={`text-sm font-medium ${
+                          theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+                        }`}>
                           {expense.expense_number}
                         </div>
-                        <div className="text-sm text-gray-500">
+                        <div className={`text-sm ${
+                          theme === 'dark' ? 'text-gray-300' : 'text-gray-500'
+                        }`}>
                           {expense.description}
                         </div>
                         {expense.vendor_name && (
-                          <div className="text-xs text-gray-400">
+                          <div className={`text-xs ${
+                            theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                          }`}>
                             {expense.vendor_name}
                           </div>
                         )}
@@ -419,19 +536,29 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
                   <td className="px-6 py-4 whitespace-nowrap">
                     <Badge 
                       variant="outline" 
-                      className="bg-gray-100 text-gray-800 border-gray-200"
+                      className={`${
+                        theme === 'dark' 
+                          ? 'bg-gray-800 text-gray-200 border-gray-600' 
+                          : 'bg-gray-100 text-gray-800 border-gray-200'
+                      }`}
                     >
                       {expense.expense_categories?.name || 'Uncategorized'}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">
+                    <div className={`text-sm font-medium ${
+                      theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+                    }`}>
                       ${expense.amount.toFixed(2)}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center text-sm text-gray-900">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                    <div className={`flex items-center text-sm ${
+                      theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+                    }`}>
+                      <Calendar className={`h-4 w-4 mr-1 ${
+                        theme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+                      }`} />
                       {new Date(expense.expense_date).toLocaleDateString()}
                     </div>
                   </td>

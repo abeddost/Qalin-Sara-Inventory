@@ -31,7 +31,21 @@ export default function ExpensesPage() {
 
   useEffect(() => {
     fetchExpenses()
+    fetchCategories()
   }, [])
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('expense_categories')
+        .select('*')
+        .order('name')
+      
+      if (error) throw error
+    } catch (error) {
+      console.error('Error fetching categories:', error)
+    }
+  }
 
   const fetchExpenses = async () => {
     try {
@@ -40,7 +54,7 @@ export default function ExpensesPage() {
         .from('expenses')
         .select(`
           *,
-          expense_categories (*)
+          expense_categories!category_id (*)
         `)
         .order('created_at', { ascending: false })
       

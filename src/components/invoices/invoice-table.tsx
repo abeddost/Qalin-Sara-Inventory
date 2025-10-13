@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge'
 import { InvoiceWithItems } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Eye, Edit, Trash2, ChevronDown } from 'lucide-react'
+import { Eye, Edit, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
 import { useTheme } from '@/components/providers/theme-provider'
 import InvoiceForm from './invoice-form'
 import InvoiceView from './invoice-view'
@@ -121,6 +121,8 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
 
 export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: InvoiceTableProps) {
   const { theme } = useTheme()
+  const [sortBy, setSortBy] = useState<'invoice_number' | 'customer_name' | 'status' | 'issue_date' | 'due_date' | 'total_amount'>('issue_date')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -221,6 +223,54 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
     }
   }
 
+  const handleSort = (column: 'invoice_number' | 'customer_name' | 'status' | 'issue_date' | 'due_date' | 'total_amount') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
+
+  const sortedInvoices = [...invoices].sort((a, b) => {
+    let aValue: any, bValue: any
+    
+    switch (sortBy) {
+      case 'invoice_number':
+        aValue = a.invoice_number
+        bValue = b.invoice_number
+        break
+      case 'customer_name':
+        aValue = a.customer_name
+        bValue = b.customer_name
+        break
+      case 'status':
+        aValue = a.status
+        bValue = b.status
+        break
+      case 'issue_date':
+        aValue = new Date(a.issue_date || '').getTime()
+        bValue = new Date(b.issue_date || '').getTime()
+        break
+      case 'due_date':
+        aValue = new Date(a.due_date || '').getTime()
+        bValue = new Date(b.due_date || '').getTime()
+        break
+      case 'total_amount':
+        aValue = a.total_amount
+        bValue = b.total_amount
+        break
+      default:
+        return 0
+    }
+
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+    }
+    
+    return sortOrder === 'asc' ? aValue - bValue : bValue - aValue
+  })
+
   const formatDate = (dateString: string | null) => {
     if (!dateString) return '-'
     return new Date(dateString).toLocaleDateString()
@@ -240,40 +290,130 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
             <thead style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb' }}>
               <tr>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('invoice_number')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Invoice #
+                  <div className="flex items-center gap-1">
+                    Invoice #
+                    {sortBy === 'invoice_number' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('customer_name')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Customer
+                  <div className="flex items-center gap-1">
+                    Customer
+                    {sortBy === 'customer_name' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('status')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Status
+                  <div className="flex items-center gap-1">
+                    Status
+                    {sortBy === 'status' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('issue_date')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Issue Date
+                  <div className="flex items-center gap-1">
+                    Issue Date
+                    {sortBy === 'issue_date' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('due_date')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Due Date
+                  <div className="flex items-center gap-1">
+                    Due Date
+                    {sortBy === 'due_date' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
-                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
-                  style={{ color: theme === 'dark' ? '#d1d5db' : '#6b7280' }}
+                  className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                  style={{ 
+                    color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                    backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
+                  onClick={() => handleSort('total_amount')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#f9fafb'
+                  }}
                 >
-                  Total
+                  <div className="flex items-center gap-1">
+                    Total
+                    {sortBy === 'total_amount' && (
+                      sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
+                    )}
+                  </div>
                 </th>
                 <th 
                   className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider"
@@ -284,7 +424,7 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
               </tr>
             </thead>
             <tbody className="divide-y" style={{ borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' }}>
-              {invoices.map((invoice) => (
+              {sortedInvoices.map((invoice) => (
                 <tr 
                   key={invoice.id}
                   className="hover:bg-opacity-80 transition-colors"

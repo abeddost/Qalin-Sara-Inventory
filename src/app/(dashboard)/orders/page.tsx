@@ -27,7 +27,8 @@ import {
   Package,
   Truck,
   XCircle,
-  ChevronDown
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react'
 import { OrderForm } from '@/components/orders/order-form'
 import type { OrderWithItems, ProductWithSizes } from '@/types/database'
@@ -144,6 +145,8 @@ export default function OrdersPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [sortBy, setSortBy] = useState<'order_number' | 'customer_name' | 'status' | 'created_at' | 'final_amount'>('created_at')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [orderToDelete, setOrderToDelete] = useState<OrderWithItems | null>(null)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -204,12 +207,56 @@ export default function OrdersPage() {
     fetchProducts()
   }, [])
 
-  const filteredOrders = orders.filter(order => {
-    const matchesSearch = order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter
-    return matchesSearch && matchesStatus
-  })
+  const handleSort = (column: 'order_number' | 'customer_name' | 'status' | 'created_at' | 'final_amount') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
+
+  const filteredAndSortedOrders = orders
+    .filter(order => {
+      const matchesSearch = order.order_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           order.customer_name.toLowerCase().includes(searchTerm.toLowerCase())
+      const matchesStatus = statusFilter === 'all' || order.status === statusFilter
+      return matchesSearch && matchesStatus
+    })
+    .sort((a, b) => {
+      let aValue: any, bValue: any
+      
+      switch (sortBy) {
+        case 'order_number':
+          aValue = a.order_number
+          bValue = b.order_number
+          break
+        case 'customer_name':
+          aValue = a.customer_name
+          bValue = b.customer_name
+          break
+        case 'status':
+          aValue = a.status
+          bValue = b.status
+          break
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+          break
+        case 'final_amount':
+          aValue = a.final_amount
+          bValue = b.final_amount
+          break
+        default:
+          return 0
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+      }
+      
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue
+    })
 
   const handleDelete = (order: OrderWithItems) => {
     setOrderToDelete(order)
@@ -297,14 +344,14 @@ export default function OrdersPage() {
   }
 
   const calculateTotals = () => {
-    let totalOrders = filteredOrders.length
-    let totalValue = filteredOrders.reduce((sum, order) => sum + order.final_amount, 0)
-    let pendingOrders = filteredOrders.filter(order => order.status === 'pending').length
-    let confirmedOrders = filteredOrders.filter(order => order.status === 'confirmed').length
-    let processingOrders = filteredOrders.filter(order => order.status === 'processing').length
-    let shippedOrders = filteredOrders.filter(order => order.status === 'shipped').length
-    let deliveredOrders = filteredOrders.filter(order => order.status === 'delivered').length
-    let cancelledOrders = filteredOrders.filter(order => order.status === 'cancelled').length
+    let totalOrders = filteredAndSortedOrders.length
+    let totalValue = filteredAndSortedOrders.reduce((sum, order) => sum + order.final_amount, 0)
+    let pendingOrders = filteredAndSortedOrders.filter(order => order.status === 'pending').length
+    let confirmedOrders = filteredAndSortedOrders.filter(order => order.status === 'confirmed').length
+    let processingOrders = filteredAndSortedOrders.filter(order => order.status === 'processing').length
+    let shippedOrders = filteredAndSortedOrders.filter(order => order.status === 'shipped').length
+    let deliveredOrders = filteredAndSortedOrders.filter(order => order.status === 'delivered').length
+    let cancelledOrders = filteredAndSortedOrders.filter(order => order.status === 'cancelled').length
 
     return { 
       totalOrders, 
@@ -538,17 +585,67 @@ export default function OrdersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Order #</TableHead>
-              <TableHead>Customer</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('order_number')}
+              >
+                <div className="flex items-center gap-1">
+                  Order #
+                  {sortBy === 'order_number' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('customer_name')}
+              >
+                <div className="flex items-center gap-1">
+                  Customer
+                  {sortBy === 'customer_name' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('status')}
+              >
+                <div className="flex items-center gap-1">
+                  Status
+                  {sortBy === 'status' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
               <TableHead>Items</TableHead>
-              <TableHead>Total</TableHead>
-              <TableHead>Date</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('final_amount')}
+              >
+                <div className="flex items-center gap-1">
+                  Total
+                  {sortBy === 'final_amount' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('created_at')}
+              >
+                <div className="flex items-center gap-1">
+                  Date
+                  {sortBy === 'created_at' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredOrders.length === 0 ? (
+            {filteredAndSortedOrders.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-8">
                   <div className="space-y-2">
@@ -562,7 +659,7 @@ export default function OrdersPage() {
                 </TableCell>
               </TableRow>
             ) : (
-              filteredOrders.map((order) => (
+              filteredAndSortedOrders.map((order) => (
                 <TableRow key={order.id} className="hover:bg-gray-50">
                   <TableCell className="font-medium">
                     <div>
