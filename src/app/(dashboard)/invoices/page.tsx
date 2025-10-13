@@ -197,7 +197,19 @@ export default function InvoicesPage() {
           </CardContent>
         </Card>
       ) : (
-        <InvoiceTable invoices={invoices} onRefresh={fetchInvoices} />
+        <InvoiceTable 
+          invoices={invoices} 
+          onRefresh={fetchInvoices} 
+          onInvoiceUpdate={(invoiceId, updates) => {
+            setInvoices(prevInvoices => 
+              prevInvoices.map(invoice => 
+                invoice.id === invoiceId 
+                  ? { ...invoice, ...updates }
+                  : invoice
+              )
+            )
+          }}
+        />
       )}
 
       {/* Invoice Form */}

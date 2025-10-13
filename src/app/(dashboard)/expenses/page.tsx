@@ -268,6 +268,15 @@ export default function ExpensesPage() {
           expenses={expenses}
           onEdit={handleEditExpense}
           onRefresh={fetchExpenses}
+          onExpenseUpdate={(expenseId, updates) => {
+            setExpenses(prevExpenses => 
+              prevExpenses.map(expense => 
+                expense.id === expenseId 
+                  ? { ...expense, ...updates }
+                  : expense
+              )
+            )
+          }}
         />
       )}
 

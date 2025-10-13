@@ -1,11 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { ExpenseWithCategory } from '@/types/database'
+import { useTheme } from '@/components/providers/theme-provider'
 import { 
   Eye, 
   Edit, 
@@ -15,7 +16,8 @@ import {
   Calendar,
   DollarSign,
   Receipt,
-  Download
+  Download,
+  ChevronDown
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
@@ -24,9 +26,107 @@ interface ExpenseTableProps {
   expenses: ExpenseWithCategory[]
   onEdit: (expense: ExpenseWithCategory) => void
   onRefresh: () => void
+  onExpenseUpdate?: (expenseId: string, updates: Partial<ExpenseWithCategory>) => void
 }
 
-export default function ExpenseTable({ expenses, onEdit, onRefresh }: ExpenseTableProps) {
+// Custom Status Dropdown Component
+function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: string, onStatusChange: (newStatus: string) => void }) {
+  const { theme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const getStatusColor = (status: string) => {
+    if (theme === 'dark') {
+      switch (status) {
+        case 'confirmed': return 'bg-green-900 text-green-200 border-green-700'
+        case 'pending': return 'bg-yellow-900 text-yellow-200 border-yellow-700'
+        case 'rejected': return 'bg-red-900 text-red-200 border-red-700'
+        default: return 'bg-gray-800 text-gray-200 border-gray-600'
+      }
+    } else {
+      switch (status) {
+        case 'confirmed': return 'bg-green-100 text-green-800 border-green-200'
+        case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        case 'rejected': return 'bg-red-100 text-red-800 border-red-200'
+        default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
+    }
+  }
+
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'confirmed', label: 'Confirmed' },
+    { value: 'rejected', label: 'Rejected' }
+  ]
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div 
+        className="cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Badge className={`${getStatusColor(currentStatus)} hover:opacity-80 transition-opacity flex items-center gap-1`}>
+          {currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
+          <ChevronDown className="h-3 w-3" />
+        </Badge>
+      </div>
+      
+      {isOpen && (
+        <div 
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]"
+          style={{
+            backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+          }}
+        >
+          {statusOptions.map((option) => (
+            <div
+              key={option.value}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 first:rounded-t-md last:rounded-b-md"
+              style={{
+                backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                color: theme === 'dark' ? '#ffffff' : '#111827'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#ffffff'
+              }}
+              onClick={() => {
+                onStatusChange(option.value)
+                setIsOpen(false)
+              }}
+            >
+              <Badge className={`${getStatusColor(option.value)} text-xs`}>
+                {option.label}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpdate }: ExpenseTableProps) {
+  const { theme } = useTheme()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
@@ -36,11 +136,20 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh }: ExpenseTab
   const supabase = createClient()
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'confirmed': return 'bg-green-100 text-green-800 border-green-200'
-      case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
-      case 'rejected': return 'bg-red-100 text-red-800 border-red-200'
-      default: return 'bg-gray-100 text-gray-800 border-gray-200'
+    if (theme === 'dark') {
+      switch (status) {
+        case 'confirmed': return 'bg-green-900 text-green-200 border-green-700'
+        case 'pending': return 'bg-yellow-900 text-yellow-200 border-yellow-700'
+        case 'rejected': return 'bg-red-900 text-red-200 border-red-700'
+        default: return 'bg-gray-800 text-gray-200 border-gray-600'
+      }
+    } else {
+      switch (status) {
+        case 'confirmed': return 'bg-green-100 text-green-800 border-green-200'
+        case 'pending': return 'bg-yellow-100 text-yellow-800 border-yellow-200'
+        case 'rejected': return 'bg-red-100 text-red-800 border-red-200'
+        default: return 'bg-gray-100 text-gray-800 border-gray-200'
+      }
     }
   }
 
@@ -84,6 +193,29 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh }: ExpenseTab
       
       return sortOrder === 'asc' ? comparison : -comparison
     })
+
+  const updateExpenseStatus = async (expenseId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('expenses')
+        .update({ status: newStatus, updated_at: new Date().toISOString() })
+        .eq('id', expenseId)
+
+      if (error) throw error
+
+      // Update local state if callback is provided, otherwise refresh
+      if (onExpenseUpdate) {
+        onExpenseUpdate(expenseId, { status: newStatus as any, updated_at: new Date().toISOString() })
+      } else {
+        onRefresh()
+      }
+
+      toast.success(`Expense status updated to ${newStatus}`)
+    } catch (error: any) {
+      console.error('Error updating expense status:', error)
+      toast.error('Failed to update expense status')
+    }
+  }
 
   const handleDelete = async (expense: ExpenseWithCategory) => {
     if (!confirm('Are you sure you want to delete this expense?')) return
@@ -304,9 +436,10 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh }: ExpenseTab
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Badge className={getStatusColor(expense.status)}>
-                      {expense.status.charAt(0).toUpperCase() + expense.status.slice(1)}
-                    </Badge>
+                    <StatusDropdown 
+                      currentStatus={expense.status}
+                      onStatusChange={(newStatus) => updateExpenseStatus(expense.id, newStatus)}
+                    />
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center text-sm text-gray-900">

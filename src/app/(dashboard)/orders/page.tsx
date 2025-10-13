@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,10 +26,116 @@ import {
   Clock,
   Package,
   Truck,
-  XCircle
+  XCircle,
+  ChevronDown
 } from 'lucide-react'
 import { OrderForm } from '@/components/orders/order-form'
 import type { OrderWithItems, ProductWithSizes } from '@/types/database'
+
+// Custom Status Dropdown Component
+function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: string, onStatusChange: (newStatus: string) => void }) {
+  const { theme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const getStatusColor = (status: string) => {
+    if (theme === 'dark') {
+      switch (status) {
+        case 'pending': return 'bg-yellow-900 text-yellow-200'
+        case 'confirmed': return 'bg-blue-900 text-blue-200'
+        case 'processing': return 'bg-purple-900 text-purple-200'
+        case 'shipped': return 'bg-indigo-900 text-indigo-200'
+        case 'delivered': return 'bg-green-900 text-green-200'
+        case 'cancelled': return 'bg-red-900 text-red-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'pending': return 'bg-yellow-100 text-yellow-800'
+        case 'confirmed': return 'bg-blue-100 text-blue-800'
+        case 'processing': return 'bg-purple-100 text-purple-800'
+        case 'shipped': return 'bg-indigo-100 text-indigo-800'
+        case 'delivered': return 'bg-green-100 text-green-800'
+        case 'cancelled': return 'bg-red-100 text-red-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
+    }
+  }
+
+  const statusOptions = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'confirmed', label: 'Confirmed' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'shipped', label: 'Shipped' },
+    { value: 'delivered', label: 'Delivered' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ]
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div 
+        className="cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Badge className={`${getStatusColor(currentStatus)} hover:opacity-80 transition-opacity flex items-center gap-1`}>
+          {currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
+          <ChevronDown className="h-3 w-3" />
+        </Badge>
+      </div>
+      
+      {isOpen && (
+        <div 
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]"
+          style={{
+            backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+          }}
+        >
+          {statusOptions.map((option) => (
+            <div
+              key={option.value}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 first:rounded-t-md last:rounded-b-md"
+              style={{
+                backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                color: theme === 'dark' ? '#ffffff' : '#111827'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#ffffff'
+              }}
+              onClick={() => {
+                onStatusChange(option.value)
+                setIsOpen(false)
+              }}
+            >
+              <Badge className={`${getStatusColor(option.value)} text-xs`}>
+                {option.label}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function OrdersPage() {
   const { theme } = useTheme()
@@ -119,8 +225,16 @@ export default function OrdersPage() {
 
       if (error) throw error
 
+      // Update local state instead of re-fetching all orders
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus as any, updated_at: new Date().toISOString() }
+            : order
+        )
+      )
+
       toast.success(`Order status updated to ${newStatus}`)
-      fetchOrders()
     } catch (error: any) {
       console.error('Error updating order status:', error)
       toast.error('Failed to update order status')
@@ -159,14 +273,26 @@ export default function OrdersPage() {
   }
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'pending': return 'bg-yellow-100 text-yellow-800'
-      case 'confirmed': return 'bg-blue-100 text-blue-800'
-      case 'processing': return 'bg-purple-100 text-purple-800'
-      case 'shipped': return 'bg-indigo-100 text-indigo-800'
-      case 'delivered': return 'bg-green-100 text-green-800'
-      case 'cancelled': return 'bg-red-100 text-red-800'
-      default: return 'bg-gray-100 text-gray-800'
+    if (theme === 'dark') {
+      switch (status) {
+        case 'pending': return 'bg-yellow-900 text-yellow-200'
+        case 'confirmed': return 'bg-blue-900 text-blue-200'
+        case 'processing': return 'bg-purple-900 text-purple-200'
+        case 'shipped': return 'bg-indigo-900 text-indigo-200'
+        case 'delivered': return 'bg-green-900 text-green-200'
+        case 'cancelled': return 'bg-red-900 text-red-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'pending': return 'bg-yellow-100 text-yellow-800'
+        case 'confirmed': return 'bg-blue-100 text-blue-800'
+        case 'processing': return 'bg-purple-100 text-purple-800'
+        case 'shipped': return 'bg-indigo-100 text-indigo-800'
+        case 'delivered': return 'bg-green-100 text-green-800'
+        case 'cancelled': return 'bg-red-100 text-red-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
     }
   }
 
@@ -455,18 +581,10 @@ export default function OrdersPage() {
                   </TableCell>
                   
                   <TableCell>
-                    <select
-                      value={order.status}
-                      onChange={(e) => updateOrderStatus(order.id, e.target.value)}
-                      className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(order.status)}`}
-                    >
-                      <option value="pending">Pending</option>
-                      <option value="confirmed">Confirmed</option>
-                      <option value="processing">Processing</option>
-                      <option value="shipped">Shipped</option>
-                      <option value="delivered">Delivered</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                    <StatusDropdown 
+                      currentStatus={order.status}
+                      onStatusChange={(newStatus) => updateOrderStatus(order.id, newStatus)}
+                    />
                   </TableCell>
                   
                   <TableCell>

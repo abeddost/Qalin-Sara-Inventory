@@ -1,12 +1,12 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { InvoiceWithItems } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Eye, Edit, Trash2 } from 'lucide-react'
+import { Eye, Edit, Trash2, ChevronDown } from 'lucide-react'
 import { useTheme } from '@/components/providers/theme-provider'
 import InvoiceForm from './invoice-form'
 import InvoiceView from './invoice-view'
@@ -14,9 +14,112 @@ import InvoiceView from './invoice-view'
 interface InvoiceTableProps {
   invoices: InvoiceWithItems[]
   onRefresh: () => void
+  onInvoiceUpdate?: (invoiceId: string, updates: Partial<InvoiceWithItems>) => void
 }
 
-export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps) {
+// Custom Status Dropdown Component
+function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: string, onStatusChange: (newStatus: string) => void }) {
+  const { theme } = useTheme()
+  const [isOpen, setIsOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const getStatusColor = (status: string) => {
+    if (theme === 'dark') {
+      switch (status) {
+        case 'draft': return 'bg-gray-800 text-gray-200'
+        case 'sent': return 'bg-blue-900 text-blue-200'
+        case 'paid': return 'bg-green-900 text-green-200'
+        case 'overdue': return 'bg-red-900 text-red-200'
+        case 'cancelled': return 'bg-gray-800 text-gray-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'draft': return 'bg-gray-100 text-gray-800'
+        case 'sent': return 'bg-blue-100 text-blue-800'
+        case 'paid': return 'bg-green-100 text-green-800'
+        case 'overdue': return 'bg-red-100 text-red-800'
+        case 'cancelled': return 'bg-gray-100 text-gray-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
+    }
+  }
+
+  const statusOptions = [
+    { value: 'draft', label: 'Draft' },
+    { value: 'sent', label: 'Sent' },
+    { value: 'paid', label: 'Paid' },
+    { value: 'overdue', label: 'Overdue' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ]
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false)
+      }
+    }
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isOpen])
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div 
+        className="cursor-pointer"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <Badge className={`${getStatusColor(currentStatus)} hover:opacity-80 transition-opacity flex items-center gap-1`}>
+          {currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
+          <ChevronDown className="h-3 w-3" />
+        </Badge>
+      </div>
+      
+      {isOpen && (
+        <div 
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]"
+          style={{
+            backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+          }}
+        >
+          {statusOptions.map((option) => (
+            <div
+              key={option.value}
+              className="px-3 py-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2 first:rounded-t-md last:rounded-b-md"
+              style={{
+                backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+                color: theme === 'dark' ? '#ffffff' : '#111827'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#374151' : '#f3f4f6'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#ffffff'
+              }}
+              onClick={() => {
+                onStatusChange(option.value)
+                setIsOpen(false)
+              }}
+            >
+              <Badge className={`${getStatusColor(option.value)} text-xs`}>
+                {option.label}
+              </Badge>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: InvoiceTableProps) {
   const { theme } = useTheme()
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
   const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | undefined>(undefined)
@@ -28,13 +131,24 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
   const supabase = createClient()
 
   const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'draft': return 'bg-gray-100 text-gray-800'
-      case 'sent': return 'bg-blue-100 text-blue-800'
-      case 'paid': return 'bg-green-100 text-green-800'
-      case 'overdue': return 'bg-red-100 text-red-800'
-      case 'cancelled': return 'bg-gray-100 text-gray-800'
-      default: return 'bg-gray-100 text-gray-800'
+    if (theme === 'dark') {
+      switch (status) {
+        case 'draft': return 'bg-gray-800 text-gray-200'
+        case 'sent': return 'bg-blue-900 text-blue-200'
+        case 'paid': return 'bg-green-900 text-green-200'
+        case 'overdue': return 'bg-red-900 text-red-200'
+        case 'cancelled': return 'bg-gray-800 text-gray-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'draft': return 'bg-gray-100 text-gray-800'
+        case 'sent': return 'bg-blue-100 text-blue-800'
+        case 'paid': return 'bg-green-100 text-green-800'
+        case 'overdue': return 'bg-red-100 text-red-800'
+        case 'cancelled': return 'bg-gray-100 text-gray-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
     }
   }
 
@@ -57,8 +171,14 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
 
       if (error) throw error
 
+      // Update local state if callback is provided, otherwise refresh
+      if (onInvoiceUpdate) {
+        onInvoiceUpdate(invoiceId, { status: newStatus as any, updated_at: new Date().toISOString() })
+      } else {
+        onRefresh()
+      }
+
       toast.success(`Invoice status updated to ${newStatus}`)
-      onRefresh()
     } catch (error: any) {
       console.error('Error updating invoice status:', error)
       toast.error('Failed to update invoice status')
@@ -207,17 +327,10 @@ export default function InvoiceTable({ invoices, onRefresh }: InvoiceTableProps)
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <select
-                      value={invoice.status}
-                      onChange={(e) => updateInvoiceStatus(invoice.id, e.target.value)}
-                      className={`px-2 py-1 rounded-full text-xs font-medium border-0 focus:outline-none focus:ring-2 focus:ring-blue-500 ${getStatusColor(invoice.status)}`}
-                    >
-                      <option value="draft">Draft</option>
-                      <option value="sent">Sent</option>
-                      <option value="paid">Paid</option>
-                      <option value="overdue">Overdue</option>
-                      <option value="cancelled">Cancelled</option>
-                    </select>
+                    <StatusDropdown 
+                      currentStatus={invoice.status}
+                      onStatusChange={(newStatus) => updateInvoiceStatus(invoice.id, newStatus)}
+                    />
                   </td>
                   <td 
                     className="px-6 py-4 whitespace-nowrap text-sm"

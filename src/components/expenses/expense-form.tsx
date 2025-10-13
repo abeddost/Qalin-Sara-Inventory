@@ -77,6 +77,24 @@ export default function ExpenseForm({ open, onClose, onSuccess, expense }: Expen
     }
   }, [open, expense])
 
+  const getStatusColor = (status: string) => {
+    if (theme === 'dark') {
+      switch (status) {
+        case 'confirmed': return 'bg-green-900 text-green-200'
+        case 'pending': return 'bg-yellow-900 text-yellow-200'
+        case 'rejected': return 'bg-red-900 text-red-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'confirmed': return 'bg-green-100 text-green-800'
+        case 'pending': return 'bg-yellow-100 text-yellow-800'
+        case 'rejected': return 'bg-red-100 text-red-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
+    }
+  }
+
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
@@ -303,7 +321,7 @@ export default function ExpenseForm({ open, onClose, onSuccess, expense }: Expen
                 id="status"
                 value={formData.status}
                 onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as any }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className={`w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${getStatusColor(formData.status)}`}
               >
                 <option value="pending">Pending</option>
                 <option value="confirmed">Confirmed</option>

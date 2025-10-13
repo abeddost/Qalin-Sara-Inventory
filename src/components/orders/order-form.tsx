@@ -186,6 +186,30 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     return productSize?.selling_price || 0
   }
 
+  const getStatusColor = (status: string) => {
+    if (theme === 'dark') {
+      switch (status) {
+        case 'pending': return 'bg-yellow-900 text-yellow-200'
+        case 'confirmed': return 'bg-blue-900 text-blue-200'
+        case 'processing': return 'bg-purple-900 text-purple-200'
+        case 'shipped': return 'bg-indigo-900 text-indigo-200'
+        case 'delivered': return 'bg-green-900 text-green-200'
+        case 'cancelled': return 'bg-red-900 text-red-200'
+        default: return 'bg-gray-800 text-gray-200'
+      }
+    } else {
+      switch (status) {
+        case 'pending': return 'bg-yellow-100 text-yellow-800'
+        case 'confirmed': return 'bg-blue-100 text-blue-800'
+        case 'processing': return 'bg-purple-100 text-purple-800'
+        case 'shipped': return 'bg-indigo-100 text-indigo-800'
+        case 'delivered': return 'bg-green-100 text-green-800'
+        case 'cancelled': return 'bg-red-100 text-red-800'
+        default: return 'bg-gray-100 text-gray-800'
+      }
+    }
+  }
+
   const calculateTotals = () => {
     const subtotal = orderItems.reduce((sum, item) => sum + item.total_price, 0)
     const discount = formData.discount_amount || 0
@@ -376,12 +400,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       console.log('Status selected:', e.target.value)
                       setFormData({...formData, status: e.target.value as any})
                     }}
-                    className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    style={{
-                      backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
-                      color: theme === 'dark' ? '#f9fafb' : '#111827',
-                      borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
-                    }}
+                    className={`mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${getStatusColor(formData.status)}`}
                   >
                     <option value="pending">Pending</option>
                     <option value="confirmed">Confirmed</option>
