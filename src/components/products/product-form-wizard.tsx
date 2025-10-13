@@ -28,9 +28,9 @@ interface ProductFormWizardProps {
 interface SizeEntry {
   id: string
   size: string
-  count: number
-  purchase_price: number
-  selling_price: number
+  count: number | null
+  purchase_price: number | null
+  selling_price: number | null
 }
 
 const steps = [
@@ -132,6 +132,39 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
     }
   }
 
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragEnter = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    const files = e.dataTransfer.files
+    if (files && files[0]) {
+      const file = files[0]
+      if (file.type.startsWith('image/')) {
+        setPhotoFile(file)
+        const reader = new FileReader()
+        reader.onload = (e) => {
+          setPhotoPreview(e.target?.result as string)
+        }
+        reader.readAsDataURL(file)
+      }
+    }
+  }
+
   const removePhoto = () => {
     setPhotoPreview(null)
     setPhotoFile(null)
@@ -170,9 +203,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
     const newSize: SizeEntry = {
       id: `size-${Date.now()}`,
       size: '',
-      count: 0,
-      purchase_price: 0,
-      selling_price: 0,
+      count: null,
+      purchase_price: null,
+      selling_price: null,
     }
     setSizeEntries([...sizeEntries, newSize])
   }
@@ -244,7 +277,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
 
       // Filter out empty size entries
       const validSizeEntries = sizeEntries.filter(entry => 
-        entry.size && (entry.count > 0 || entry.purchase_price > 0 || entry.selling_price > 0)
+        entry.size && ((entry.count !== null && entry.count > 0) || (entry.purchase_price !== null && entry.purchase_price > 0) || (entry.selling_price !== null && entry.selling_price > 0))
       )
 
       // Check if we have valid sizes
@@ -289,9 +322,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
           const sizesToInsert = validSizeEntries.map(entry => ({
             product_id: product.id,
             size: entry.size,
-            count: entry.count,
-            purchase_price: entry.purchase_price,
-            selling_price: entry.selling_price,
+            count: entry.count || 0,
+            purchase_price: entry.purchase_price || 0,
+            selling_price: entry.selling_price || 0,
           }))
 
           const { error: sizesError } = await supabase
@@ -330,9 +363,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
           const sizesToInsert = validSizeEntries.map(entry => ({
             product_id: newProduct.id,
             size: entry.size,
-            count: entry.count,
-            purchase_price: entry.purchase_price,
-            selling_price: entry.selling_price,
+            count: entry.count || 0,
+            purchase_price: entry.purchase_price || 0,
+            selling_price: entry.selling_price || 0,
           }))
 
           const { error: sizesError } = await supabase
@@ -369,7 +402,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
       
       if (currentStep === 2) {
         const hasValidSizes = sizeEntries.length > 0 && sizeEntries.some(entry => 
-          entry.size && (entry.count > 0 || entry.purchase_price > 0 || entry.selling_price > 0)
+          entry.size && ((entry.count !== null && entry.count > 0) || (entry.purchase_price !== null && entry.purchase_price > 0) || (entry.selling_price !== null && entry.selling_price > 0))
         )
         if (!hasValidSizes) {
           toast.error('Please add at least one valid size entry.')
@@ -408,7 +441,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
       case 1:
         return formData.code.trim() !== ''
       case 2:
-        return sizeEntries.length > 0 && sizeEntries.some(entry => entry.size && entry.count > 0)
+        return sizeEntries.length > 0 && sizeEntries.some(entry => entry.size && entry.count !== null && entry.count > 0)
       case 3:
         return true
       default:
@@ -472,17 +505,26 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
               </Button>
             </div>
           ) : (
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors">
-              <Upload className="mx-auto h-16 w-16 text-blue-400 mb-4" />
-              <p className="text-lg font-semibold text-gray-700 mb-2">Upload a product photo</p>
-              <p className="text-sm text-gray-500">Drag and drop or click to browse</p>
-            </div>
+            <label htmlFor="photo-upload" className="cursor-pointer">
+              <div 
+                className="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-blue-400 hover:bg-blue-50 transition-colors"
+                onDragOver={handleDragOver}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+              >
+                <Upload className="mx-auto h-16 w-16 text-blue-400 mb-4" />
+                <p className="text-lg font-semibold text-gray-700 mb-2">Upload a product photo</p>
+                <p className="text-sm text-gray-500">Drag and drop or click to browse</p>
+              </div>
+            </label>
           )}
           <Input
+            id="photo-upload"
             type="file"
             accept="image/*"
             onChange={handlePhotoChange}
-            className="cursor-pointer"
+            className="cursor-pointer hidden"
           />
         </div>
       </div>
@@ -519,8 +561,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                 <Input
                   type="number"
                   min="0"
-                  value={entry.count}
-                  onChange={(e) => updateSizeEntry(entry.id, 'count', parseInt(e.target.value) || 0)}
+                  value={entry.count === null ? '' : entry.count}
+                  placeholder="0"
+                  onChange={(e) => updateSizeEntry(entry.id, 'count', e.target.value === '' ? null : parseInt(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -537,8 +580,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                   type="number"
                   min="0"
                   step="0.01"
-                  value={entry.purchase_price}
-                  onChange={(e) => updateSizeEntry(entry.id, 'purchase_price', parseFloat(e.target.value) || 0)}
+                  value={entry.purchase_price === null ? '' : entry.purchase_price}
+                  placeholder="0"
+                  onChange={(e) => updateSizeEntry(entry.id, 'purchase_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -555,8 +599,9 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                   type="number"
                   min="0"
                   step="0.01"
-                  value={entry.selling_price}
-                  onChange={(e) => updateSizeEntry(entry.id, 'selling_price', parseFloat(e.target.value) || 0)}
+                  value={entry.selling_price === null ? '' : entry.selling_price}
+                  placeholder="0"
+                  onChange={(e) => updateSizeEntry(entry.id, 'selling_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -608,7 +653,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
 
     const displayData = reviewSnapshot
     const validSizes = displayData.sizeEntries.filter(entry => 
-      entry.size && (entry.count > 0 || entry.purchase_price > 0 || entry.selling_price > 0)
+      entry.size && ((entry.count !== null && entry.count > 0) || (entry.purchase_price !== null && entry.purchase_price > 0) || (entry.selling_price !== null && entry.selling_price > 0))
     )
 
     return (
@@ -649,7 +694,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                     <div key={entry.id} className="flex justify-between items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <Badge variant="secondary" className="bg-blue-100 text-blue-800">{entry.size}</Badge>
                       <div className="text-sm text-gray-700 font-medium">
-                        Count: {entry.count} | Purchase: ${entry.purchase_price} | Selling: ${entry.selling_price}
+                        Count: {entry.count || 0} | Purchase: ${entry.purchase_price || 0} | Selling: ${entry.selling_price || 0}
                       </div>
                     </div>
                   ))}

@@ -2,7 +2,7 @@
 
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { X, ZoomIn, ZoomOut, RotateCw } from 'lucide-react'
+import { ZoomIn, ZoomOut, RotateCw } from 'lucide-react'
 import { useState } from 'react'
 
 interface ImagePreviewProps {
@@ -43,15 +43,6 @@ export function ImagePreview({ open, onOpenChange, imageUrl }: ImagePreviewProps
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 overflow-hidden">
         <DialogTitle className="sr-only">Product Image Preview</DialogTitle>
         <div className="relative w-full h-[80vh] bg-black">
-          {/* Close Button */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="absolute top-4 right-4 z-10 text-white hover:bg-white/20"
-            onClick={handleClose}
-          >
-            <X className="h-4 w-4" />
-          </Button>
 
           {/* Zoom Controls */}
           <div className="absolute top-4 left-4 z-10 flex space-x-2">

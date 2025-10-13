@@ -39,7 +39,7 @@ interface OrderItem {
   product_id: string
   product_size: string
   quantity: number
-  unit_price: number
+  unit_price: number | null
   total_price: number
 }
 
@@ -55,8 +55,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     customer_address: '',
     status: 'pending' as const,
     notes: '',
-    discount_amount: 0,
-    tax_amount: 0
+    discount_amount: null as number | null,
+    tax_amount: null as number | null
   })
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const [renderKey, setRenderKey] = useState(0)
@@ -128,8 +128,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       customer_address: '',
       status: 'pending',
       notes: '',
-      discount_amount: 0,
-      tax_amount: 0
+      discount_amount: null,
+      tax_amount: null
     })
     setOrderItems([])
   }
@@ -145,7 +145,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       product_id: '',
       product_size: '',
       quantity: 1,
-      unit_price: 0,
+      unit_price: null,
       total_price: 0
     }])
   }
@@ -165,7 +165,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       
       // Recalculate total price when quantity or unit price changes
       if (field === 'quantity' || field === 'unit_price') {
-        updatedItems[index].total_price = updatedItems[index].quantity * updatedItems[index].unit_price
+        updatedItems[index].total_price = updatedItems[index].quantity * (updatedItems[index].unit_price || 0)
       }
       
       console.log('Updated orderItems:', updatedItems)
@@ -188,8 +188,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
 
   const calculateTotals = () => {
     const subtotal = orderItems.reduce((sum, item) => sum + item.total_price, 0)
-    const discount = formData.discount_amount
-    const tax = formData.tax_amount
+    const discount = formData.discount_amount || 0
+    const tax = formData.tax_amount || 0
     const total = subtotal - discount + tax
     
     return { subtotal, discount, tax, total }
@@ -224,8 +224,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             customer_address: formData.customer_address || null,
             status: formData.status,
             notes: formData.notes || null,
-            discount_amount: formData.discount_amount,
-            tax_amount: formData.tax_amount,
+            discount_amount: formData.discount_amount || 0,
+            tax_amount: formData.tax_amount || 0,
             total_amount: subtotal,
             final_amount: total,
             updated_at: new Date().toISOString()
@@ -247,7 +247,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             product_id: item.product_id,
             product_size: item.product_size,
             quantity: item.quantity,
-            unit_price: item.unit_price,
+            unit_price: item.unit_price || 0,
             total_price: item.total_price
           }))
 
@@ -271,8 +271,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             customer_address: formData.customer_address || null,
             status: formData.status,
             notes: formData.notes || null,
-            discount_amount: formData.discount_amount,
-            tax_amount: formData.tax_amount,
+            discount_amount: formData.discount_amount || 0,
+            tax_amount: formData.tax_amount || 0,
             total_amount: subtotal,
             final_amount: total
           })
@@ -288,7 +288,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
             product_id: item.product_id,
             product_size: item.product_size,
             quantity: item.quantity,
-            unit_price: item.unit_price,
+            unit_price: item.unit_price || 0,
             total_price: item.total_price
           }))
 
@@ -519,16 +519,6 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
                         <div>
                           <Label className="mb-2">Product</Label>
-                          <button 
-                            type="button" 
-                            onClick={() => {
-                              console.log('Test button clicked')
-                              updateOrderItem(index, 'product_id', 'test')
-                            }}
-                            className="mb-2 px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded"
-                          >
-                            Test Set Product
-                          </button>
                           <select
                             value={item.product_id}
                             onChange={(e) => {
@@ -537,7 +527,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                               console.log('Current orderItems before update:', orderItems)
                               updateOrderItem(index, 'product_id', e.target.value)
                               updateOrderItem(index, 'product_size', '')
-                              updateOrderItem(index, 'unit_price', 0)
+                              updateOrderItem(index, 'unit_price', null)
                             }}
                             onClick={(e) => {
                               console.log('Product dropdown clicked')
@@ -569,7 +559,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             onChange={(e) => {
                               updateOrderItem(index, 'product_size', e.target.value)
                               const price = getProductSizePrice(item.product_id, e.target.value)
-                              updateOrderItem(index, 'unit_price', price)
+                              updateOrderItem(index, 'unit_price', price || null)
                             }}
                             disabled={!item.product_id}
                             className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
@@ -610,8 +600,9 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             type="number"
                             min="0"
                             step="0.01"
-                            value={item.unit_price}
-                            onChange={(e) => updateOrderItem(index, 'unit_price', parseFloat(e.target.value) || 0)}
+                            value={item.unit_price === null ? '' : item.unit_price}
+                            placeholder="0"
+                            onChange={(e) => updateOrderItem(index, 'unit_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
                             className="mt-1"
                             style={{
                               backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
@@ -677,8 +668,9 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       type="number"
                       min="0"
                       step="0.01"
-                      value={formData.discount_amount}
-                      onChange={(e) => setFormData({...formData, discount_amount: parseFloat(e.target.value) || 0})}
+                      value={formData.discount_amount === null ? '' : formData.discount_amount}
+                      placeholder="0"
+                      onChange={(e) => setFormData({...formData, discount_amount: e.target.value === '' ? null : parseFloat(e.target.value) || 0})}
                       className="mt-1"
                       style={{
                         backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
@@ -694,8 +686,9 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                       type="number"
                       min="0"
                       step="0.01"
-                      value={formData.tax_amount}
-                      onChange={(e) => setFormData({...formData, tax_amount: parseFloat(e.target.value) || 0})}
+                      value={formData.tax_amount === null ? '' : formData.tax_amount}
+                      placeholder="0"
+                      onChange={(e) => setFormData({...formData, tax_amount: e.target.value === '' ? null : parseFloat(e.target.value) || 0})}
                       className="mt-1"
                       style={{
                         backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',

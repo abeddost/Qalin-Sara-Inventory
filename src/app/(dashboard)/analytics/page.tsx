@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -16,7 +17,9 @@ import {
   PieChart,
   Calendar,
   Target,
-  AlertCircle
+  AlertCircle,
+  FileText,
+  Receipt
 } from 'lucide-react'
 import type { ProductWithSizes } from '@/types/database'
 
@@ -39,6 +42,7 @@ interface AnalyticsData {
 
 export default function AnalyticsPage() {
   const { theme } = useTheme()
+  const router = useRouter()
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -410,25 +414,37 @@ export default function AnalyticsPage() {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
+            <button 
+              onClick={() => router.push('/orders')}
+              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+            >
               <ShoppingCart className="h-6 w-6 text-blue-600 mb-2" />
               <p className="font-medium text-gray-900">Create Order</p>
               <p className="text-sm text-gray-500">Start a new order</p>
             </button>
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
+            <button 
+              onClick={() => router.push('/products')}
+              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+            >
               <Package className="h-6 w-6 text-green-600 mb-2" />
               <p className="font-medium text-gray-900">Add Product</p>
               <p className="text-sm text-gray-500">Add new inventory</p>
             </button>
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
-              <BarChart3 className="h-6 w-6 text-purple-600 mb-2" />
-              <p className="font-medium text-gray-900">Generate Report</p>
-              <p className="text-sm text-gray-500">Export data</p>
+            <button 
+              onClick={() => router.push('/invoices')}
+              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+            >
+              <FileText className="h-6 w-6 text-purple-600 mb-2" />
+              <p className="font-medium text-gray-900">Create Invoice</p>
+              <p className="text-sm text-gray-500">Generate new invoice</p>
             </button>
-            <button className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left">
-              <AlertCircle className="h-6 w-6 text-red-600 mb-2" />
-              <p className="font-medium text-gray-900">View Alerts</p>
-              <p className="text-sm text-gray-500">Low stock items</p>
+            <button 
+              onClick={() => router.push('/expenses')}
+              className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors text-left"
+            >
+              <Receipt className="h-6 w-6 text-orange-600 mb-2" />
+              <p className="font-medium text-gray-900">Expenses</p>
+              <p className="text-sm text-gray-500">Track expenses</p>
             </button>
           </div>
         </CardContent>
