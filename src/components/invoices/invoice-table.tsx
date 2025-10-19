@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { InvoiceWithItems } from '@/types/database'
@@ -22,7 +21,6 @@ interface InvoiceTableProps {
 function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: string, onStatusChange: (newStatus: string) => void }) {
   const { theme } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
-  const [position, setPosition] = useState({ top: 0, left: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLDivElement>(null)
 
@@ -56,16 +54,6 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
     { value: 'cancelled', label: 'Cancelled' }
   ]
 
-  const updatePosition = () => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect()
-      setPosition({
-        top: rect.bottom + window.scrollY + 4,
-        left: rect.left + window.scrollX
-      })
-    }
-  }
-
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -74,28 +62,21 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
     }
 
     if (isOpen) {
-      updatePosition()
       document.addEventListener('mousedown', handleClickOutside)
-      window.addEventListener('scroll', updatePosition)
-      window.addEventListener('resize', updatePosition)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-      window.removeEventListener('scroll', updatePosition)
-      window.removeEventListener('resize', updatePosition)
     }
   }, [isOpen])
 
   const handleToggle = () => {
-    if (!isOpen) {
-      updatePosition()
-    }
+    console.log('Invoice StatusDropdown toggle clicked, current isOpen:', isOpen)
     setIsOpen(!isOpen)
   }
 
   return (
-    <>
+    <div className="relative" ref={dropdownRef}>
       <div
         ref={triggerRef}
         className="cursor-pointer"
@@ -107,13 +88,10 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
         </Badge>
       </div>
       
-      {isOpen && createPortal(
+      {isOpen && (
         <div 
-          ref={dropdownRef}
-          className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-[9999] min-w-[120px]"
+          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-xl z-[9999] min-w-[120px]"
           style={{
-            top: position.top,
-            left: position.left,
             backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
             borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
             maxHeight: '200px',
@@ -135,7 +113,10 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = theme === 'dark' ? '#1f2937' : '#ffffff'
               }}
-              onClick={() => {
+              onClick={(e) => {
+                e.preventDefault()
+                e.stopPropagation()
+                console.log('Invoice StatusDropdown option clicked:', option.value)
                 onStatusChange(option.value)
                 setIsOpen(false)
               }}
@@ -145,10 +126,9 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
               </Badge>
             </div>
           ))}
-        </div>,
-        document.body
+        </div>
       )}
-    </>
+    </div>
   )
 }
 

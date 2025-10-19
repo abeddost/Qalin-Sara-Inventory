@@ -10,7 +10,6 @@ import {
   TrendingUp, 
   TrendingDown,
   Receipt,
-  BarChart3,
   PieChart,
   Calendar
 } from 'lucide-react'
@@ -181,63 +180,8 @@ export default function ExpensesPage() {
         </Card>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <Card className="bg-white border-0 shadow-sm">
-          <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5" />
-              <span>Expense Status Overview</span>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Confirmed</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-green-600 h-2 rounded-full" 
-                      style={{ width: `${totalExpenses > 0 ? (expenses.filter(e => e.status === 'confirmed').length / totalExpenses) * 100 : 0}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {expenses.filter(e => e.status === 'confirmed').length}
-                  </span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Pending</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-yellow-600 h-2 rounded-full" 
-                      style={{ width: `${totalExpenses > 0 ? (expenses.filter(e => e.status === 'pending').length / totalExpenses) * 100 : 0}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {expenses.filter(e => e.status === 'pending').length}
-                  </span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-600">Rejected</span>
-                <div className="flex items-center space-x-2">
-                  <div className="w-20 bg-gray-200 rounded-full h-2">
-                    <div 
-                      className="bg-red-600 h-2 rounded-full" 
-                      style={{ width: `${totalExpenses > 0 ? (expenses.filter(e => e.status === 'rejected').length / totalExpenses) * 100 : 0}%` }}
-                    ></div>
-                  </div>
-                  <span className="text-sm font-medium text-gray-900">
-                    {expenses.filter(e => e.status === 'rejected').length}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
+      {/* Top Categories */}
+      <div className="mb-8">
         <Card className="bg-white border-0 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
@@ -283,6 +227,7 @@ export default function ExpensesPage() {
           onEdit={handleEditExpense}
           onRefresh={fetchExpenses}
           onExpenseUpdate={(expenseId, updates) => {
+            console.log('onExpenseUpdate called:', { expenseId, updates })
             setExpenses(prevExpenses => 
               prevExpenses.map(expense => 
                 expense.id === expenseId 
