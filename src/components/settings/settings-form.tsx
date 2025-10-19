@@ -187,11 +187,73 @@ export default function SettingsForm() {
   const [twoFactorQRCode, setTwoFactorQRCode] = useState('')
   const [twoFactorCode, setTwoFactorCode] = useState('')
 
+  // System Information states
+  const [systemInfo, setSystemInfo] = useState({
+    applicationVersion: 'v1.0.0',
+    databaseStatus: 'Checking...',
+    lastBackup: null as string | null,
+    storageUsed: '0 MB / 1 GB',
+    totalProducts: 0,
+    totalOrders: 0,
+    totalInvoices: 0,
+    totalExpenses: 0
+  })
+  const [isBackupLoading, setIsBackupLoading] = useState(false)
+  const [isExportLoading, setIsExportLoading] = useState(false)
+
   const supabase = createClient()
 
   useEffect(() => {
     loadSettings()
+    fetchSystemInfo()
   }, [])
+
+  // Fetch real system information
+  const fetchSystemInfo = async () => {
+    try {
+      // Test database connection
+      const { data: dbTest, error: dbError } = await supabase
+        .from('products')
+        .select('id')
+        .limit(1)
+
+      const databaseStatus = dbError ? 'Disconnected' : 'Connected'
+
+      // Get counts from all tables
+      const [productsResult, ordersResult, invoicesResult, expensesResult] = await Promise.all([
+        supabase.from('products').select('id', { count: 'exact', head: true }),
+        supabase.from('orders').select('id', { count: 'exact', head: true }),
+        supabase.from('invoices').select('id', { count: 'exact', head: true }),
+        supabase.from('expenses').select('id', { count: 'exact', head: true })
+      ])
+
+      // Calculate storage usage (approximate)
+      const totalRecords = (productsResult.count || 0) + (ordersResult.count || 0) + 
+                          (invoicesResult.count || 0) + (expensesResult.count || 0)
+      const estimatedStorageMB = Math.round(totalRecords * 0.5) // Rough estimate: 0.5MB per record
+      const storageUsed = `${estimatedStorageMB} MB / 1 GB`
+
+      // Get last backup from localStorage
+      const lastBackup = localStorage.getItem('last-backup-timestamp')
+
+      setSystemInfo({
+        applicationVersion: 'v1.0.0', // This could be fetched from package.json in a real app
+        databaseStatus,
+        lastBackup,
+        storageUsed,
+        totalProducts: productsResult.count || 0,
+        totalOrders: ordersResult.count || 0,
+        totalInvoices: invoicesResult.count || 0,
+        totalExpenses: expensesResult.count || 0
+      })
+    } catch (error) {
+      console.error('Error fetching system info:', error)
+      setSystemInfo(prev => ({
+        ...prev,
+        databaseStatus: 'Error'
+      }))
+    }
+  }
 
   // Sync appearance settings with providers
   useEffect(() => {
@@ -373,6 +435,159 @@ export default function SettingsForm() {
       }
     }
     reader.readAsText(file)
+  }
+
+  // Real backup functionality
+  const handleCreateBackup = async () => {
+    setIsBackupLoading(true)
+    try {
+      // Fetch all data from database
+      const [productsResult, ordersResult, invoicesResult, expensesResult] = await Promise.all([
+        supabase.from('products').select('*, product_sizes (*)'),
+        supabase.from('orders').select('*, order_items (*)'),
+        supabase.from('invoices').select('*, invoice_items (*)'),
+        supabase.from('expenses').select('*, expense_categories (*)')
+      ])
+
+      if (productsResult.error) throw productsResult.error
+      if (ordersResult.error) throw ordersResult.error
+      if (invoicesResult.error) throw invoicesResult.error
+      if (expensesResult.error) throw expensesResult.error
+
+      // Create comprehensive backup
+      const backupData = {
+        metadata: {
+          timestamp: new Date().toISOString(),
+          version: '1.0.0',
+          totalRecords: {
+            products: productsResult.data?.length || 0,
+            orders: ordersResult.data?.length || 0,
+            invoices: invoicesResult.data?.length || 0,
+            expenses: expensesResult.data?.length || 0
+          }
+        },
+        data: {
+          products: productsResult.data || [],
+          orders: ordersResult.data || [],
+          invoices: invoicesResult.data || [],
+          expenses: expensesResult.data || []
+        },
+        settings: settings
+      }
+
+      // Save backup to localStorage
+      const backupKey = `backup-${new Date().toISOString().split('T')[0]}`
+      localStorage.setItem(backupKey, JSON.stringify(backupData))
+      
+      // Update last backup timestamp
+      const timestamp = new Date().toISOString()
+      localStorage.setItem('last-backup-timestamp', timestamp)
+      
+      // Update system info
+      setSystemInfo(prev => ({
+        ...prev,
+        lastBackup: timestamp
+      }))
+
+      // Download backup file
+      const dataStr = JSON.stringify(backupData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `qalin-sara-backup-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success('Backup created successfully!')
+    } catch (error: any) {
+      console.error('Error creating backup:', error)
+      toast.error(error.message || 'Failed to create backup')
+    } finally {
+      setIsBackupLoading(false)
+    }
+  }
+
+  // Real export all data functionality
+  const handleExportAllData = async () => {
+    setIsExportLoading(true)
+    try {
+      // Fetch all data from database
+      const [productsResult, ordersResult, invoicesResult, expensesResult] = await Promise.all([
+        supabase.from('products').select('*, product_sizes (*)'),
+        supabase.from('orders').select('*, order_items (*)'),
+        supabase.from('invoices').select('*, invoice_items (*)'),
+        supabase.from('expenses').select('*, expense_categories (*)')
+      ])
+
+      if (productsResult.error) throw productsResult.error
+      if (ordersResult.error) throw ordersResult.error
+      if (invoicesResult.error) throw invoicesResult.error
+      if (expensesResult.error) throw expensesResult.error
+
+      // Create export data
+      const exportData = {
+        metadata: {
+          timestamp: new Date().toISOString(),
+          version: '1.0.0',
+          exportType: 'full-data-export',
+          totalRecords: {
+            products: productsResult.data?.length || 0,
+            orders: ordersResult.data?.length || 0,
+            invoices: invoicesResult.data?.length || 0,
+            expenses: expensesResult.data?.length || 0
+          }
+        },
+        data: {
+          products: productsResult.data || [],
+          orders: ordersResult.data || [],
+          invoices: invoicesResult.data || [],
+          expenses: expensesResult.data || []
+        }
+      }
+
+      // Download export file
+      const dataStr = JSON.stringify(exportData, null, 2)
+      const dataBlob = new Blob([dataStr], { type: 'application/json' })
+      const url = URL.createObjectURL(dataBlob)
+      
+      const link = document.createElement('a')
+      link.href = url
+      link.download = `qalin-sara-export-${new Date().toISOString().split('T')[0]}.json`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      URL.revokeObjectURL(url)
+
+      toast.success('All data exported successfully!')
+    } catch (error: any) {
+      console.error('Error exporting data:', error)
+      toast.error(error.message || 'Failed to export data')
+    } finally {
+      setIsExportLoading(false)
+    }
+  }
+
+  // Helper function to format last backup time
+  const formatLastBackup = (timestamp: string | null) => {
+    if (!timestamp) return 'Never'
+    
+    const now = new Date()
+    const backupTime = new Date(timestamp)
+    const diffMs = now.getTime() - backupTime.getTime()
+    const diffMins = Math.floor(diffMs / 60000)
+    const diffHours = Math.floor(diffMins / 60)
+    const diffDays = Math.floor(diffHours / 24)
+    
+    if (diffMins < 1) return 'Just now'
+    if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+    if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+    if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+    
+    return backupTime.toLocaleDateString()
   }
 
   const tabs = [
@@ -1283,13 +1498,23 @@ export default function SettingsForm() {
                 <div className="space-y-4 border-t pt-6">
                   <h3 className="text-lg font-medium text-gray-900">Data Actions</h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Button variant="outline" className="flex items-center justify-center space-x-2">
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center justify-center space-x-2"
+                      onClick={handleExportAllData}
+                      disabled={isExportLoading}
+                    >
                       <Download className="h-4 w-4" />
-                      <span>Export All Data</span>
+                      <span>{isExportLoading ? 'Exporting...' : 'Export All Data'}</span>
                     </Button>
-                    <Button variant="outline" className="flex items-center justify-center space-x-2">
-                      <RefreshCw className="h-4 w-4" />
-                      <span>Create Backup</span>
+                    <Button 
+                      variant="outline" 
+                      className="flex items-center justify-center space-x-2"
+                      onClick={handleCreateBackup}
+                      disabled={isBackupLoading}
+                    >
+                      <RefreshCw className={`h-4 w-4 ${isBackupLoading ? 'animate-spin' : ''}`} />
+                      <span>{isBackupLoading ? 'Creating...' : 'Create Backup'}</span>
                     </Button>
                   </div>
                 </div>
@@ -1299,20 +1524,59 @@ export default function SettingsForm() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <p className="text-sm font-medium text-gray-600">Application Version</p>
-                      <p className="text-lg font-semibold text-gray-900">v1.0.0</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.applicationVersion}</p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-600">Database Status</p>
-                      <Badge className="bg-green-100 text-green-800">Connected</Badge>
+                      <Badge className={
+                        systemInfo.databaseStatus === 'Connected' 
+                          ? 'bg-green-100 text-green-800' 
+                          : systemInfo.databaseStatus === 'Error'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                      }>
+                        {systemInfo.databaseStatus}
+                      </Badge>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-600">Last Backup</p>
-                      <p className="text-lg font-semibold text-gray-900">2 hours ago</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {formatLastBackup(systemInfo.lastBackup)}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-600">Storage Used</p>
-                      <p className="text-lg font-semibold text-gray-900">245 MB / 1 GB</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.storageUsed}</p>
                     </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Products</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.totalProducts}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Orders</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.totalOrders}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Invoices</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.totalInvoices}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Total Expenses</p>
+                      <p className="text-lg font-semibold text-gray-900">{systemInfo.totalExpenses}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Refresh Button */}
+                  <div className="flex justify-end">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={fetchSystemInfo}
+                      className="flex items-center space-x-2"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      <span>Refresh System Info</span>
+                    </Button>
                   </div>
                 </div>
               </CardContent>
