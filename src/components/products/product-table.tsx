@@ -11,7 +11,7 @@ import { ProductFormWizard } from './product-form-wizard'
 import { ImagePreview } from './image-preview'
 import { CARPET_SIZES } from '@/lib/constants'
 import { toast } from 'sonner'
-import { Edit, Trash2, Eye, Search, Package } from 'lucide-react'
+import { Edit, Trash2, Eye, Search, Package, ChevronUp, ChevronDown } from 'lucide-react'
 import type { ProductWithSizes } from '@/types/database'
 
 interface ProductTableProps {
@@ -21,6 +21,8 @@ interface ProductTableProps {
 
 export function ProductTable({ products, onRefresh }: ProductTableProps) {
   const [searchTerm, setSearchTerm] = useState('')
+  const [sortBy, setSortBy] = useState<'code' | 'created_at' | 'total_stock' | 'total_value'>('created_at')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [selectedProduct, setSelectedProduct] = useState<ProductWithSizes | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
@@ -30,9 +32,57 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
   const [previewImage, setPreviewImage] = useState<string | null>(null)
   const supabase = createClient()
 
-  const filteredProducts = products.filter(product =>
-    product.code.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const handleSort = (column: 'code' | 'created_at' | 'total_stock' | 'total_value') => {
+    if (sortBy === column) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortBy(column)
+      setSortOrder('asc')
+    }
+  }
+
+  const calculateTotalStock = (product: ProductWithSizes) => {
+    return product.product_sizes.reduce((total, size) => total + size.count, 0)
+  }
+
+  const calculateTotalValue = (product: ProductWithSizes) => {
+    return product.product_sizes.reduce((total, size) => total + (size.count * size.selling_price), 0)
+  }
+
+  const filteredAndSortedProducts = products
+    .filter(product =>
+      product.code.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      let aValue: any, bValue: any
+      
+      switch (sortBy) {
+        case 'code':
+          aValue = a.code
+          bValue = b.code
+          break
+        case 'created_at':
+          aValue = new Date(a.created_at).getTime()
+          bValue = new Date(b.created_at).getTime()
+          break
+        case 'total_stock':
+          aValue = calculateTotalStock(a)
+          bValue = calculateTotalStock(b)
+          break
+        case 'total_value':
+          aValue = calculateTotalValue(a)
+          bValue = calculateTotalValue(b)
+          break
+        default:
+          return 0
+      }
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
+      }
+      
+      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue
+    })
 
   const handleEdit = (product: ProductWithSizes) => {
     setSelectedProduct(product)
@@ -89,7 +139,7 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
     let totalPurchaseValue = 0
     let totalSellingValue = 0
 
-    filteredProducts.forEach(product => {
+    filteredAndSortedProducts.forEach(product => {
       product.product_sizes.forEach(size => {
         totalCount += size.count
         totalPurchaseValue += size.count * size.purchase_price
@@ -123,24 +173,56 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
           <TableHeader>
             <TableRow>
               <TableHead className="w-20">Photo</TableHead>
-              <TableHead>Code</TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('code')}
+              >
+                <div className="flex items-center gap-1">
+                  Code
+                  {sortBy === 'code' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
               {CARPET_SIZES.map(size => (
                 <TableHead key={size} className="text-center min-w-32">
                   {size}
                 </TableHead>
               ))}
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('total_stock')}
+              >
+                <div className="flex items-center gap-1">
+                  Total Stock
+                  {sortBy === 'total_stock' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
+              <TableHead 
+                className="cursor-pointer hover:bg-gray-50 select-none"
+                onClick={() => handleSort('total_value')}
+              >
+                <div className="flex items-center gap-1">
+                  Total Value
+                  {sortBy === 'total_value' && (
+                    sortOrder === 'asc' ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
+                  )}
+                </div>
+              </TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredProducts.length === 0 ? (
+            {filteredAndSortedProducts.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={11} className="text-center py-8 text-muted-foreground">
                   {searchTerm ? 'No products found matching your search' : 'No products yet. Add your first product!'}
                 </TableCell>
               </TableRow>
             ) : (
-              filteredProducts.map((product) => (
+              filteredAndSortedProducts.map((product) => (
                 <TableRow key={product.id} className="hover:bg-muted/50">
                   {/* Photo */}
                   <TableCell>
@@ -193,6 +275,20 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
                     )
                   })}
 
+                  {/* Total Stock */}
+                  <TableCell className="text-center">
+                    <div className="text-sm font-medium">
+                      {calculateTotalStock(product)}
+                    </div>
+                  </TableCell>
+
+                  {/* Total Value */}
+                  <TableCell className="text-center">
+                    <div className="text-sm font-medium">
+                      ${calculateTotalValue(product).toFixed(2)}
+                    </div>
+                  </TableCell>
+
                   {/* Actions */}
                   <TableCell>
                     <div className="flex space-x-1">
@@ -221,7 +317,7 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
       </div>
 
       {/* Totals Footer */}
-      {filteredProducts.length > 0 && (
+      {filteredAndSortedProducts.length > 0 && (
         <div className="grid grid-cols-3 gap-4 p-4 bg-muted/50 rounded-lg">
           <div className="text-center">
             <div className="text-2xl font-bold text-primary">{totalCount}</div>
