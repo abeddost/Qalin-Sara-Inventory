@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
@@ -34,7 +35,9 @@ interface ExpenseTableProps {
 function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: string, onStatusChange: (newStatus: string) => void }) {
   const { theme } = useTheme()
   const [isOpen, setIsOpen] = useState(false)
+  const [position, setPosition] = useState({ top: 0, left: 0 })
   const dropdownRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLDivElement>(null)
 
   const getStatusColor = (status: string) => {
     if (theme === 'dark') {
@@ -60,6 +63,16 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
     { value: 'rejected', label: 'Rejected' }
   ]
 
+  const updatePosition = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect()
+      setPosition({
+        top: rect.bottom + window.scrollY + 4,
+        left: rect.left + window.scrollX
+      })
+    }
+  }
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -68,19 +81,32 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
     }
 
     if (isOpen) {
+      updatePosition()
       document.addEventListener('mousedown', handleClickOutside)
+      window.addEventListener('scroll', updatePosition)
+      window.addEventListener('resize', updatePosition)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
+      window.removeEventListener('scroll', updatePosition)
+      window.removeEventListener('resize', updatePosition)
     }
   }, [isOpen])
 
+  const handleToggle = () => {
+    if (!isOpen) {
+      updatePosition()
+    }
+    setIsOpen(!isOpen)
+  }
+
   return (
-    <div className="relative" ref={dropdownRef}>
-      <div 
+    <>
+      <div
+        ref={triggerRef}
         className="cursor-pointer"
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
       >
         <Badge className={`${getStatusColor(currentStatus)} hover:opacity-80 transition-opacity flex items-center gap-1`}>
           {currentStatus.charAt(0).toUpperCase() + currentStatus.slice(1)}
@@ -88,12 +114,18 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
         </Badge>
       </div>
       
-      {isOpen && (
+      {isOpen && createPortal(
         <div 
-          className="absolute top-full left-0 mt-1 bg-white border border-gray-200 rounded-md shadow-lg z-10 min-w-[120px]"
+          ref={dropdownRef}
+          className="fixed bg-white border border-gray-200 rounded-md shadow-xl z-[9999] min-w-[120px]"
           style={{
+            top: position.top,
+            left: position.left,
             backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'
+            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
+            maxHeight: '200px',
+            overflowY: 'auto',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
           }}
         >
           {statusOptions.map((option) => (
@@ -120,9 +152,10 @@ function StatusDropdown({ currentStatus, onStatusChange }: { currentStatus: stri
               </Badge>
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
-    </div>
+    </>
   )
 }
 

@@ -107,10 +107,28 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
 
     setIsGeneratingPDF(true)
     try {
+      // First try with html2canvas
       const canvas = await html2canvas(invoiceRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        allowTaint: true,
+        foreignObjectRendering: false,
+        ignoreElements: (element) => {
+          // Skip elements that might have problematic CSS
+          return element.classList.contains('no-print') || 
+                 element.tagName === 'SCRIPT' || 
+                 element.tagName === 'STYLE'
+        },
+        onclone: (clonedDoc) => {
+          // Remove any problematic CSS from the cloned document
+          const clonedStyles = clonedDoc.querySelectorAll('style')
+          clonedStyles.forEach(style => {
+            if (style.textContent?.includes('lab(')) {
+              style.remove()
+            }
+          })
+        }
       })
 
       const imgData = canvas.toDataURL('image/png')
@@ -136,8 +154,64 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
       pdf.save(`invoice-${invoice.invoice_number}.pdf`)
       toast.success('PDF generated successfully')
     } catch (error) {
-      console.error('Error generating PDF:', error)
-      toast.error('Failed to generate PDF')
+      console.error('Error generating PDF with html2canvas:', error)
+      
+      // Fallback: Generate a simple text-based PDF
+      try {
+        const pdf = new jsPDF('p', 'mm', 'a4')
+        
+        // Add invoice header
+        pdf.setFontSize(20)
+        pdf.text('INVOICE', 20, 30)
+        
+        pdf.setFontSize(12)
+        pdf.text(`Invoice #: ${invoice.invoice_number}`, 20, 45)
+        pdf.text(`Issue Date: ${new Date(invoice.issue_date || '').toLocaleDateString()}`, 20, 55)
+        pdf.text(`Due Date: ${new Date(invoice.due_date || '').toLocaleDateString()}`, 20, 65)
+        
+        // Customer information
+        pdf.text('Bill To:', 20, 85)
+        pdf.text(invoice.customer_name, 20, 95)
+        if (invoice.customer_email) pdf.text(invoice.customer_email, 20, 105)
+        if (invoice.customer_phone) pdf.text(invoice.customer_phone, 20, 115)
+        if (invoice.customer_address) pdf.text(invoice.customer_address, 20, 125)
+        
+        // Invoice items
+        let yPosition = 150
+        pdf.text('Description', 20, yPosition)
+        pdf.text('Quantity', 100, yPosition)
+        pdf.text('Unit Price', 130, yPosition)
+        pdf.text('Total', 160, yPosition)
+        
+        yPosition += 10
+        invoice.invoice_items.forEach(item => {
+          pdf.text(item.description || 'Item', 20, yPosition)
+          pdf.text(item.quantity.toString(), 100, yPosition)
+          pdf.text(`$${item.unit_price.toFixed(2)}`, 130, yPosition)
+          pdf.text(`$${item.total_price.toFixed(2)}`, 160, yPosition)
+          yPosition += 10
+        })
+        
+        // Totals
+        yPosition += 10
+        pdf.text(`Subtotal: $${invoice.total_amount.toFixed(2)}`, 130, yPosition)
+        if (invoice.tax_amount) {
+          yPosition += 10
+          pdf.text(`Tax: $${invoice.tax_amount.toFixed(2)}`, 130, yPosition)
+        }
+        if (invoice.discount_amount) {
+          yPosition += 10
+          pdf.text(`Discount: -$${invoice.discount_amount.toFixed(2)}`, 130, yPosition)
+        }
+        yPosition += 10
+        pdf.text(`Total: $${invoice.total_amount.toFixed(2)}`, 130, yPosition)
+        
+        pdf.save(`invoice-${invoice.invoice_number}.pdf`)
+        toast.success('PDF generated successfully (fallback method)')
+      } catch (fallbackError) {
+        console.error('Error generating fallback PDF:', fallbackError)
+        toast.error('Failed to generate PDF. Please try again.')
+      }
     } finally {
       setIsGeneratingPDF(false)
     }

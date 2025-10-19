@@ -59,7 +59,6 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     tax_amount: null as number | null
   })
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
-  const [renderKey, setRenderKey] = useState(0)
   const supabase = createClient()
 
   // Debug: Log when orderItems changes
@@ -161,7 +160,15 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       console.log('Current orderItems:', prevItems)
       
       const updatedItems = [...prevItems]
-      updatedItems[index] = { ...updatedItems[index], [field]: value }
+      const currentItem = updatedItems[index]
+      
+      // Only update if the value actually changed
+      if (currentItem[field] === value) {
+        console.log('Value unchanged, skipping update')
+        return prevItems
+      }
+      
+      updatedItems[index] = { ...currentItem, [field]: value }
       
       // Recalculate total price when quantity or unit price changes
       if (field === 'quantity' || field === 'unit_price') {
@@ -171,8 +178,6 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       console.log('Updated orderItems:', updatedItems)
       return updatedItems
     })
-    
-    setRenderKey(prev => prev + 1)  // Force re-render
   }
 
   const getProductSizes = (productId: string) => {
@@ -354,7 +359,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           </DialogTitle>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-6" key={renderKey}>
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Order Details */}
           <Card 
             style={{
@@ -621,7 +626,17 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             step="0.01"
                             value={item.unit_price === null ? '' : item.unit_price}
                             placeholder="0"
-                            onChange={(e) => updateOrderItem(index, 'unit_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
+                            onChange={(e) => {
+                              const value = e.target.value
+                              if (value === '') {
+                                updateOrderItem(index, 'unit_price', null)
+                              } else {
+                                const numValue = parseFloat(value)
+                                if (!isNaN(numValue)) {
+                                  updateOrderItem(index, 'unit_price', numValue)
+                                }
+                              }
+                            }}
                             className="mt-1"
                             style={{
                               backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
