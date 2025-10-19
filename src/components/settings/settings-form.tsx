@@ -200,12 +200,19 @@ export default function SettingsForm() {
   })
   const [isBackupLoading, setIsBackupLoading] = useState(false)
   const [isExportLoading, setIsExportLoading] = useState(false)
+  const [backupEnabled, setBackupEnabled] = useState(true)
 
   const supabase = createClient()
 
   useEffect(() => {
     loadSettings()
     fetchSystemInfo()
+    
+    // Load backup enabled state from localStorage
+    const savedBackupState = localStorage.getItem('backup-enabled')
+    if (savedBackupState !== null) {
+      setBackupEnabled(JSON.parse(savedBackupState))
+    }
   }, [])
 
   // Fetch real system information
@@ -588,6 +595,18 @@ export default function SettingsForm() {
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
     
     return backupTime.toLocaleDateString()
+  }
+
+  // Backup toggle functionality
+  const handleBackupToggle = (enabled: boolean) => {
+    setBackupEnabled(enabled)
+    localStorage.setItem('backup-enabled', JSON.stringify(enabled))
+    
+    if (enabled) {
+      toast.success('Backup functionality enabled')
+    } else {
+      toast.info('Backup functionality disabled')
+    }
   }
 
   const tabs = [
@@ -1444,14 +1463,33 @@ export default function SettingsForm() {
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <div>
+                        <Label>Backup Functionality</Label>
+                        <p className="text-sm text-gray-500">Enable or disable backup features</p>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <Badge className={backupEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                          {backupEnabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                        <Button
+                          variant={backupEnabled ? "destructive" : "default"}
+                          size="sm"
+                          onClick={() => handleBackupToggle(!backupEnabled)}
+                        >
+                          {backupEnabled ? 'Disable Backup' : 'Enable Backup'}
+                        </Button>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <div>
                         <Label>Auto Backup</Label>
                         <p className="text-sm text-gray-500">Automatically backup your data</p>
                       </div>
                       <input
                         type="checkbox"
-                        checked={settings.autoBackup}
+                        checked={settings.autoBackup && backupEnabled}
                         onChange={(e) => setSettings({...settings, autoBackup: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        disabled={!backupEnabled}
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50"
                       />
                     </div>
                     <div>
@@ -1460,7 +1498,8 @@ export default function SettingsForm() {
                         id="backupFrequency"
                         value={settings.backupFrequency}
                         onChange={(e) => setSettings({...settings, backupFrequency: e.target.value})}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        disabled={!backupEnabled}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
                       >
                         <option value="daily">Daily</option>
                         <option value="weekly">Weekly</option>
@@ -1511,10 +1550,13 @@ export default function SettingsForm() {
                       variant="outline" 
                       className="flex items-center justify-center space-x-2"
                       onClick={handleCreateBackup}
-                      disabled={isBackupLoading}
+                      disabled={isBackupLoading || !backupEnabled}
                     >
                       <RefreshCw className={`h-4 w-4 ${isBackupLoading ? 'animate-spin' : ''}`} />
-                      <span>{isBackupLoading ? 'Creating...' : 'Create Backup'}</span>
+                      <span>
+                        {!backupEnabled ? 'Backup Disabled' : 
+                         isBackupLoading ? 'Creating...' : 'Create Backup'}
+                      </span>
                     </Button>
                   </div>
                 </div>
@@ -1563,6 +1605,12 @@ export default function SettingsForm() {
                     <div>
                       <p className="text-sm font-medium text-gray-600">Total Expenses</p>
                       <p className="text-lg font-semibold text-gray-900">{systemInfo.totalExpenses}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-600">Backup Status</p>
+                      <Badge className={backupEnabled ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}>
+                        {backupEnabled ? 'Enabled' : 'Disabled'}
+                      </Badge>
                     </div>
                   </div>
                   
