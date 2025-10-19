@@ -1,59 +1,62 @@
 'use client'
 
 import { Card, CardContent } from '@/components/ui/card'
-import { TrendingUp, Users, Package, Building2, FileText } from 'lucide-react'
+import { TrendingUp, Users, Package, Building2, FileText, Receipt } from 'lucide-react'
 import type { ProductWithSizes } from '@/types/database'
 
 interface MetricsOverviewProps {
   products: ProductWithSizes[]
+  totalOrders?: number
+  totalInvoices?: number
+  totalExpenses?: number
 }
 
-export function MetricsOverview({ products }: MetricsOverviewProps) {
+export function MetricsOverview({ products, totalOrders = 0, totalInvoices = 0, totalExpenses = 0 }: MetricsOverviewProps) {
   // Calculate metrics
   const totalProducts = products.length
   const totalCount = products.reduce((sum, product) => 
-    sum + product.product_sizes.reduce((sizeSum, size) => sizeSum + size.count, 0), 0
+    sum + product.product_sizes.reduce((sizeSum, size) => sizeSum + (size.count || 0), 0), 0
   )
   const totalPurchaseValue = products.reduce((sum, product) => 
     sum + product.product_sizes.reduce((sizeSum, size) => 
-      sizeSum + (size.count * size.purchase_price), 0), 0
+      sizeSum + ((size.count || 0) * (size.purchase_price || 0)), 0), 0
   )
   const totalSellingValue = products.reduce((sum, product) => 
     sum + product.product_sizes.reduce((sizeSum, size) => 
-      sizeSum + (size.count * size.selling_price), 0), 0
+      sizeSum + ((size.count || 0) * (size.selling_price || 0)), 0), 0
   )
 
   const metrics = [
     {
-      title: 'Total Customer',
-      value: '160',
-      icon: Users,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      trend: '+12%'
-    },
-    {
-      title: 'Total Product',
+      title: 'Total Products',
       value: totalProducts.toString(),
       icon: Package,
-      iconColor: 'text-orange-600',
-      iconBg: 'bg-orange-100',
+      iconColor: 'text-blue-600',
+      iconBg: 'bg-blue-100',
       trend: '+8%'
     },
     {
-      title: 'Total Supplier',
-      value: '24',
-      icon: Users,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
+      title: 'Total Inventory',
+      value: totalCount.toString(),
+      icon: Package,
+      iconColor: 'text-green-600',
+      iconBg: 'bg-green-100',
+      trend: '+12%'
+    },
+    {
+      title: 'Total Orders',
+      value: totalOrders.toString(),
+      icon: Building2,
+      iconColor: 'text-purple-600',
+      iconBg: 'bg-purple-100',
       trend: '+15%'
     },
     {
-      title: 'Total Invoice',
-      value: '684',
-      icon: Building2,
-      iconColor: 'text-blue-600',
-      iconBg: 'bg-blue-100',
+      title: 'Total Value',
+      value: `$${totalSellingValue.toLocaleString()}`,
+      icon: FileText,
+      iconColor: 'text-orange-600',
+      iconBg: 'bg-orange-100',
       trend: '+18%'
     }
   ]

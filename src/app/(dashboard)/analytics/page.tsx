@@ -184,8 +184,7 @@ export default function AnalyticsPage() {
       icon: Package,
       iconColor: 'text-blue-600',
       iconBg: 'bg-blue-100',
-      trend: '+12%',
-      trendUp: true
+      trend: analyticsData.totalProducts > 0 ? 'Active' : 'No Data'
     },
     {
       title: 'Total Inventory',
@@ -193,8 +192,7 @@ export default function AnalyticsPage() {
       icon: Package,
       iconColor: 'text-green-600',
       iconBg: 'bg-green-100',
-      trend: '+8%',
-      trendUp: true
+      trend: analyticsData.totalInventory > 0 ? 'In Stock' : 'Empty'
     },
     {
       title: 'Total Value',
@@ -202,8 +200,7 @@ export default function AnalyticsPage() {
       icon: DollarSign,
       iconColor: 'text-purple-600',
       iconBg: 'bg-purple-100',
-      trend: '+15%',
-      trendUp: true
+      trend: analyticsData.totalValue > 0 ? 'Valued' : 'No Value'
     },
     {
       title: 'Average Price',
@@ -211,8 +208,7 @@ export default function AnalyticsPage() {
       icon: Target,
       iconColor: 'text-orange-600',
       iconBg: 'bg-orange-100',
-      trend: '+3%',
-      trendUp: true
+      trend: analyticsData.averagePrice > 0 ? 'Priced' : 'No Price'
     }
   ]
 
@@ -281,12 +277,7 @@ export default function AnalyticsPage() {
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">{metric.title}</p>
                   <p className="text-3xl font-bold text-gray-900 mb-2">{metric.value}</p>
-                  <div className={`flex items-center ${metric.trendUp ? 'text-green-600' : 'text-red-600'}`}>
-                    {metric.trendUp ? (
-                      <TrendingUp className="h-4 w-4 mr-1" />
-                    ) : (
-                      <TrendingDown className="h-4 w-4 mr-1" />
-                    )}
+                  <div className="flex items-center text-blue-600">
                     <span className="text-sm font-medium">{metric.trend}</span>
                   </div>
                 </div>

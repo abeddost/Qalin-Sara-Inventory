@@ -12,6 +12,9 @@ import type { ProductWithSizes } from '@/types/database'
 export default function ProductsPage() {
   const { theme } = useTheme()
   const [products, setProducts] = useState<ProductWithSizes[]>([])
+  const [totalOrders, setTotalOrders] = useState(0)
+  const [totalInvoices, setTotalInvoices] = useState(0)
+  const [totalExpenses, setTotalExpenses] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
@@ -40,13 +43,39 @@ export default function ProductsPage() {
       setProducts(data || [])
     } catch (error) {
       console.error('Error fetching products:', error)
+    }
+  }
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true)
+      
+      // Fetch all data in parallel
+      const [productsResult, ordersResult, invoicesResult, expensesResult] = await Promise.all([
+        supabase.from('products').select('*, product_sizes (*)').order('created_at', { ascending: false }),
+        supabase.from('orders').select('id', { count: 'exact', head: true }),
+        supabase.from('invoices').select('id', { count: 'exact', head: true }),
+        supabase.from('expenses').select('id', { count: 'exact', head: true })
+      ])
+
+      if (productsResult.error) throw productsResult.error
+      if (ordersResult.error) throw ordersResult.error
+      if (invoicesResult.error) throw invoicesResult.error
+      if (expensesResult.error) throw expensesResult.error
+
+      setProducts(productsResult.data || [])
+      setTotalOrders(ordersResult.count || 0)
+      setTotalInvoices(invoicesResult.count || 0)
+      setTotalExpenses(expensesResult.count || 0)
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error)
     } finally {
       setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchProducts()
+    fetchDashboardData()
   }, [])
 
   if (isLoading || !user) {
@@ -74,18 +103,23 @@ export default function ProductsPage() {
       
       <div className="p-6">
         {/* Key Metrics */}
-        <MetricsOverview products={products} />
+        <MetricsOverview 
+          products={products} 
+          totalOrders={totalOrders}
+          totalInvoices={totalInvoices}
+          totalExpenses={totalExpenses}
+        />
 
         {/* Products Table */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
-          <ProductTable products={products} onRefresh={fetchProducts} />
+          <ProductTable products={products} onRefresh={fetchDashboardData} />
         </div>
 
         {/* Add Product Form */}
         <ProductFormWizard
           open={isFormOpen}
           onOpenChange={setIsFormOpen}
-          onSuccess={fetchProducts}
+          onSuccess={fetchDashboardData}
         />
       </div>
     </div>
