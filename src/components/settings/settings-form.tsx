@@ -178,6 +178,14 @@ export default function SettingsForm() {
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  
+  // Security states
+  const [securityLogs, setSecurityLogs] = useState<any[]>([])
+  const [activeSessions, setActiveSessions] = useState<any[]>([])
+  const [twoFactorSetup, setTwoFactorSetup] = useState(false)
+  const [twoFactorSecret, setTwoFactorSecret] = useState('')
+  const [twoFactorQRCode, setTwoFactorQRCode] = useState('')
+  const [twoFactorCode, setTwoFactorCode] = useState('')
 
   const supabase = createClient()
 
@@ -1023,14 +1031,17 @@ export default function SettingsForm() {
                       id="language"
                       value={locale}
                       onChange={(e) => {
-                        const newLocale = e.target.value as 'en' | 'es' | 'fr' | 'de' | 'ar'
+                        const newLocale = e.target.value as 'en' | 'es' | 'fr' | 'de' | 'ar' | 'fa' | 'ps' | 'tr'
                         setLocale(newLocale)
                         const languageNames = {
                           en: 'English',
                           es: 'Español',
                           fr: 'Français',
                           de: 'Deutsch',
-                          ar: 'العربية'
+                          ar: 'العربية',
+                          fa: 'فارسی',
+                          ps: 'پښتو',
+                          tr: 'Türkçe'
                         }
                         toast.success(`${t('languageChanged')} ${languageNames[newLocale]}`)
                       }}
@@ -1046,6 +1057,9 @@ export default function SettingsForm() {
                       <option value="fr">Français</option>
                       <option value="de">Deutsch</option>
                       <option value="ar">العربية</option>
+                      <option value="fa">فارسی</option>
+                      <option value="ps">پښتو</option>
+                      <option value="tr">Türkçe</option>
                     </select>
                   </div>
                   <div>

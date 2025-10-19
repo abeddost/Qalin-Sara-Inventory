@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 
-type Locale = 'en' | 'es' | 'fr' | 'de' | 'ar'
+type Locale = 'en' | 'es' | 'fr' | 'de' | 'ar' | 'fa' | 'ps' | 'tr'
 
 type LocaleProviderProps = {
   children: React.ReactNode

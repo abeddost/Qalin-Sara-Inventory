@@ -6,13 +6,19 @@ import { es } from '@/lib/translations/es'
 import { fr } from '@/lib/translations/fr'
 import { de } from '@/lib/translations/de'
 import { ar } from '@/lib/translations/ar'
+import { fa } from '@/lib/translations/fa'
+import { ps } from '@/lib/translations/ps'
+import { tr } from '@/lib/translations/tr'
 
 const translations = {
   en,
   es,
   fr,
   de,
-  ar
+  ar,
+  fa,
+  ps,
+  tr
 }
 
 export function useTranslation() {
