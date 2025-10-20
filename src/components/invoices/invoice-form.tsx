@@ -31,8 +31,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
     customer_phone: '',
     customer_address: '',
     status: 'draft' as 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled',
-    discount_amount: 0,
-    tax_rate: 0,
+    discount_amount: null,
+    tax_rate: null,
     due_date: '',
     issue_date: new Date().toISOString().split('T')[0],
     notes: ''
@@ -84,8 +84,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           customer_phone: '',
           customer_address: '',
           status: 'draft',
-          discount_amount: 0,
-          tax_rate: 0,
+          discount_amount: null,
+          tax_rate: null,
           due_date: '',
           issue_date: new Date().toISOString().split('T')[0],
           notes: ''
@@ -226,9 +226,9 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
   const calculateTotals = () => {
     const subtotal = invoiceItems.reduce((sum, item) => sum + item.total_price, 0)
-    const discountAmount = formData.discount_amount
+    const discountAmount = formData.discount_amount || 0
     const taxableAmount = subtotal - discountAmount
-    const taxAmount = (taxableAmount * formData.tax_rate) / 100
+    const taxAmount = (taxableAmount * (formData.tax_rate || 0)) / 100
     const totalAmount = taxableAmount + taxAmount
     
     return { subtotal, discountAmount, taxAmount, totalAmount }
@@ -313,8 +313,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             customer_address: formData.customer_address || null,
             status: formData.status,
             subtotal,
-            discount_amount: discountAmount,
-            tax_rate: formData.tax_rate,
+            discount_amount: discountAmount || 0,
+            tax_rate: formData.tax_rate || 0,
             tax_amount: taxAmount,
             total_amount: totalAmount,
             due_date: formData.due_date || null,
@@ -366,8 +366,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             customer_address: formData.customer_address || null,
             status: formData.status,
             subtotal,
-            discount_amount: discountAmount,
-            tax_rate: formData.tax_rate,
+            discount_amount: discountAmount || 0,
+            tax_rate: formData.tax_rate || 0,
             tax_amount: taxAmount,
             total_amount: totalAmount,
             due_date: formData.due_date || null,
@@ -654,7 +654,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
             {invoiceItems.map((item, index) => (
               <div key={item.temp_id || `invoice-item-${index}`} className="border border-gray-200 rounded-lg p-4">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                <div className="grid grid-cols-1 md:grid-cols-8 gap-4 items-end">
                   <div className="md:col-span-2">
                     <Label className="mb-2">Product</Label>
                     <select
@@ -678,7 +678,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                     </select>
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <Label className="mb-2">Size</Label>
                     <select
                       value={item.product_size}
@@ -716,7 +716,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                     />
                   </div>
 
-                  <div>
+                  <div className="md:col-span-2">
                     <Label className="mb-2">Unit Price</Label>
                     <Input
                       type="number"
@@ -732,25 +732,27 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                     />
                   </div>
 
-                  <div className="flex items-end gap-2">
-                    <div className="flex-1">
-                      <Label className="mb-2">Total</Label>
-                      <Input
-                        value={`$${item.total_price.toFixed(2)}`}
-                        readOnly
-                        style={{
-                          backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb',
-                          color: theme === 'dark' ? '#d1d5db' : '#6b7280',
-                          borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
-                        }}
-                      />
-                    </div>
+                  <div className="md:col-span-2">
+                    <Label className="mb-2">Total</Label>
+                    <Input
+                      value={`$${item.total_price.toFixed(2)}`}
+                      readOnly
+                      className="w-full"
+                      style={{
+                        backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb',
+                        color: theme === 'dark' ? '#d1d5db' : '#6b7280',
+                        borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                      }}
+                    />
+                  </div>
+
+                  <div className="flex items-end">
                     <Button
                       type="button"
                       onClick={() => removeInvoiceItem(index)}
                       variant="outline"
                       size="sm"
-                      className="text-red-600 hover:text-red-700"
+                      className="text-red-600 hover:text-red-700 w-full"
                     >
                       Remove
                     </Button>
@@ -786,7 +788,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                 <span>-${discountAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Tax ({formData.tax_rate}%):</span>
+                <span>Tax ({formData.tax_rate || 0}%):</span>
                 <span>${taxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
@@ -803,8 +805,12 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.discount_amount}
-                  onChange={(e) => setFormData(prev => ({ ...prev, discount_amount: parseFloat(e.target.value) || 0 }))}
+                  value={formData.discount_amount || ''}
+                  placeholder="0"
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    discount_amount: e.target.value === '' ? null : parseFloat(e.target.value) || 0 
+                  }))}
                   style={{
                     backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
                     color: theme === 'dark' ? '#f9fafb' : '#111827',
@@ -820,8 +826,12 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   type="number"
                   step="0.01"
                   min="0"
-                  value={formData.tax_rate}
-                  onChange={(e) => setFormData(prev => ({ ...prev, tax_rate: parseFloat(e.target.value) || 0 }))}
+                  value={formData.tax_rate || ''}
+                  placeholder="0"
+                  onChange={(e) => setFormData(prev => ({ 
+                    ...prev, 
+                    tax_rate: e.target.value === '' ? null : parseFloat(e.target.value) || 0 
+                  }))}
                   style={{
                     backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
                     color: theme === 'dark' ? '#f9fafb' : '#111827',

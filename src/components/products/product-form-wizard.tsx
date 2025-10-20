@@ -123,6 +123,13 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Check file size (650KB = 650 * 1024 bytes)
+      const maxSize = 650 * 1024
+      if (file.size > maxSize) {
+        toast.error(`File size must be less than 650KB. Current size: ${(file.size / 1024).toFixed(1)}KB`)
+        return
+      }
+      
       setPhotoFile(file)
       const reader = new FileReader()
       reader.onload = (e) => {
@@ -155,6 +162,13 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
     if (files && files[0]) {
       const file = files[0]
       if (file.type.startsWith('image/')) {
+        // Check file size (650KB = 650 * 1024 bytes)
+        const maxSize = 650 * 1024
+        if (file.size > maxSize) {
+          toast.error(`File size must be less than 650KB. Current size: ${(file.size / 1024).toFixed(1)}KB`)
+          return
+        }
+        
         setPhotoFile(file)
         const reader = new FileReader()
         reader.onload = (e) => {
@@ -516,6 +530,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                 <Upload className="mx-auto h-16 w-16 text-blue-400 mb-4" />
                 <p className="text-lg font-semibold text-gray-700 mb-2">Upload a product photo</p>
                 <p className="text-sm text-gray-500">Drag and drop or click to browse</p>
+                <p className="text-xs text-gray-400 mt-1">Maximum file size: 650KB</p>
               </div>
             </label>
           )}

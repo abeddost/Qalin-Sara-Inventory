@@ -50,6 +50,13 @@ export function ProductForm({ open, onOpenChange, product, onSuccess }: ProductF
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Check file size (650KB = 650 * 1024 bytes)
+      const maxSize = 650 * 1024
+      if (file.size > maxSize) {
+        toast.error(`File size must be less than 650KB. Current size: ${(file.size / 1024).toFixed(1)}KB`)
+        return
+      }
+      
       setPhotoFile(file)
       const reader = new FileReader()
       reader.onload = (e) => setPhotoPreview(e.target?.result as string)
