@@ -6,7 +6,6 @@ Your carpet inventory system is now **fully functional** with:
 
 - ✅ **Database Setup**: Products and ProductSizes tables created with RLS policies
 - ✅ **Storage Bucket**: `carpet-photos` bucket ready for image uploads
-- ✅ **Sample Data**: 3 sample products with size variants added
 - ✅ **Complete UI**: Product management with add/edit/delete/search
 - ✅ **Photo Upload**: Supabase Storage integration
 - ✅ **Modern Design**: Qalin Sara branding with beautiful UI
@@ -21,8 +20,9 @@ Create `.env.local` in your project root with this content:
 
 ```env
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://wsvhtvxyvzkvfofryncp.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indzdmh0dnh5dnprdmZvZnJ5bmNwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMjIwNTAsImV4cCI6MjA3NTU5ODA1MH0.o87Dnapex5TBHyp_B09dUkFpUExWC0EFEdTFEqrTBSM
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 # App Configuration
 NEXT_PUBLIC_APP_URL=http://localhost:3000
@@ -30,13 +30,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## 🔐 Create Your First User
 
-1. Go to your Supabase dashboard: https://supabase.com/dashboard/project/wsvhtvxyvzkvfofryncp
+1. Go to your Supabase dashboard
 2. Navigate to **Authentication → Users**
 3. Click **"Add User"**
-4. Enter:
-   - Email: `admin@qalinsara.com`
-   - Password: `password123`
-   - Confirm email: ✅ (check this)
+4. Enter your email and password
 5. Click **"Create User"**
 
 ## 🎯 Test Your System
@@ -45,7 +42,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 2. **Visit**: http://localhost:3000
 3. **Login** with your credentials
 4. **Explore the features**:
-   - View 3 sample products
    - Add new products with photos
    - Edit existing products
    - Search by product code
@@ -78,13 +74,6 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 - ✅ Photo storage in Supabase
 - ✅ Secure authentication
 - ✅ Row-level security
-
-## 📊 Sample Data Included
-
-Your system comes with 3 sample products:
-- **QS-001**: Traditional carpet with 4 sizes
-- **QS-002**: Premium carpet with 3 sizes  
-- **QS-003**: Modern carpet with 4 sizes
 
 ## 🔧 Next Steps (Optional)
 

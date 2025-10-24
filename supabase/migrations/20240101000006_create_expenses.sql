@@ -47,14 +47,4 @@ CREATE POLICY "Users can insert expenses" ON expenses FOR INSERT WITH CHECK (aut
 CREATE POLICY "Users can update expenses" ON expenses FOR UPDATE USING (auth.role() = 'authenticated');
 CREATE POLICY "Users can delete expenses" ON expenses FOR DELETE USING (auth.role() = 'authenticated');
 
--- Insert default expense categories
-INSERT INTO expense_categories (name, description, color) VALUES
-('Rent', 'Office/store rent payments', '#EF4444'),
-('Utilities', 'Electricity, water, internet bills', '#F59E0B'),
-('Marketing', 'Advertising and promotional expenses', '#8B5CF6'),
-('Transportation', 'Delivery and transportation costs', '#06B6D4'),
-('Office Supplies', 'Stationery and office materials', '#10B981'),
-('Maintenance', 'Equipment and facility maintenance', '#F97316'),
-('Insurance', 'Business insurance premiums', '#84CC16'),
-('Other', 'Miscellaneous expenses', '#6B7280');
 

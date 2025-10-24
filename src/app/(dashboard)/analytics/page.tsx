@@ -119,8 +119,8 @@ export default function AnalyticsPage() {
       averagePrice,
       topSellingSize,
       lowStockItems: lowStockCount,
-      inventoryGrowth: 0, // Placeholder - would need historical data
-      valueGrowth: 0, // Placeholder - would need historical data
+      inventoryGrowth: 0, // No historical data available
+      valueGrowth: 0, // No historical data available
       sizeDistribution,
       priceRange
     }
