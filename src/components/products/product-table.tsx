@@ -355,7 +355,7 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-gray-900">Delete Product</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600">
-              Are you sure you want to delete product "{productToDelete?.code}"? 
+              Are you sure you want to delete product &quot;{productToDelete?.code}&quot;? 
               This will also delete all size entries and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

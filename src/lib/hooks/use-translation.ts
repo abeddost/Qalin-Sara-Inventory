@@ -26,7 +26,7 @@ export function useTranslation() {
   
   const t = (key: string): string => {
     const keys = key.split('.')
-    let value: any = translations[locale] || translations.en
+    let value: Record<string, unknown> | string = translations[locale] || translations.en
     
     for (const k of keys) {
       value = value?.[k]

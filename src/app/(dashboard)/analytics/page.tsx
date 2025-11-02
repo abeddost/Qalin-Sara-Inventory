@@ -46,7 +46,7 @@ export default function AnalyticsPage() {
   const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d')
+  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d' | '1y' | 'all'>('30d')
   const supabase = createClient()
 
   const fetchProducts = async () => {
@@ -72,8 +72,8 @@ export default function AnalyticsPage() {
     let totalInventory = 0
     let totalValue = 0
     let totalSellingValue = 0
-    let sizeCounts: Record<string, number> = {}
-    let allPrices: number[] = []
+    const sizeCounts: Record<string, number> = {}
+    const allPrices: number[] = []
     let lowStockCount = 0
 
     products.forEach(product => {
@@ -256,7 +256,7 @@ export default function AnalyticsPage() {
             <Calendar className="h-5 w-5 text-gray-400" />
             <select
               value={timeRange}
-              onChange={(e) => setTimeRange(e.target.value as any)}
+              onChange={(e) => setTimeRange(e.target.value as '7d' | '30d' | '90d' | '1y' | 'all')}
               className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="7d">Last 7 days</option>

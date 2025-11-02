@@ -28,7 +28,7 @@ export default function ProductsPage() {
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<{ id: string; email?: string; user_metadata?: { first_name?: string; last_name?: string } } | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const supabase = createClient()
@@ -96,9 +96,10 @@ export default function ProductsPage() {
       setIsExporting(true)
       exportToJSON(products)
       toast.success('Inventory exported to JSON successfully')
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export inventory'
       console.error('Export error:', error)
-      toast.error(error.message || 'Failed to export inventory')
+      toast.error(errorMessage)
     } finally {
       setIsExporting(false)
     }
@@ -109,9 +110,10 @@ export default function ProductsPage() {
       setIsExporting(true)
       exportToCSV(products)
       toast.success('Inventory exported to CSV successfully')
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to export inventory'
       console.error('Export error:', error)
-      toast.error(error.message || 'Failed to export inventory')
+      toast.error(errorMessage)
     } finally {
       setIsExporting(false)
     }
@@ -222,7 +224,7 @@ export default function ProductsPage() {
           }
 
           successCount++
-        } catch (error: any) {
+        } catch (error) {
           console.error(`Error importing product ${productData.code}:`, error)
           errorCount++
         }
@@ -239,9 +241,10 @@ export default function ProductsPage() {
 
       // Refresh data
       fetchDashboardData()
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to import inventory'
       console.error('Import error:', error)
-      toast.error(error.message || 'Failed to import inventory')
+      toast.error(errorMessage)
       event.target.value = ''
     } finally {
       setIsImporting(false)

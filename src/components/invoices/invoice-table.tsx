@@ -560,7 +560,7 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
               className="mb-4"
               style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
             >
-              Are you sure you want to delete invoice "{invoiceToDelete.invoice_number}"? 
+              Are you sure you want to delete invoice &quot;{invoiceToDelete.invoice_number}&quot;? 
               This will also delete all invoice items and cannot be undone.
             </p>
             <div className="flex justify-end space-x-3">

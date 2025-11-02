@@ -240,7 +240,7 @@ export default function OrdersPage() {
       return matchesSearch && matchesStatus
     })
     .sort((a, b) => {
-      let aValue: any, bValue: any
+      let aValue: string | number | Date, bValue: string | number | Date
       
       switch (sortBy) {
         case 'order_number':
@@ -299,13 +299,13 @@ export default function OrdersPage() {
       setOrders(prevOrders => 
         prevOrders.map(order => 
           order.id === orderId 
-            ? { ...order, status: newStatus as any, updated_at: new Date().toISOString() }
+            ? { ...order, status: newStatus as 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled', updated_at: new Date().toISOString() }
             : order
         )
       )
 
       toast.success(`Order status updated to ${newStatus}`)
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error updating order status:', error)
       toast.error('Failed to update order status')
     }
@@ -332,9 +332,10 @@ export default function OrdersPage() {
 
       toast.success('Order deleted successfully')
       fetchOrders()
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to delete order'
       console.error('Error deleting order:', error)
-      toast.error(error.message || 'Failed to delete order')
+      toast.error(errorMessage)
     } finally {
       setIsDeleting(false)
       setIsDeleteDialogOpen(false)
@@ -367,14 +368,14 @@ export default function OrdersPage() {
   }
 
   const calculateTotals = () => {
-    let totalOrders = filteredAndSortedOrders.length
-    let totalValue = filteredAndSortedOrders.reduce((sum, order) => sum + order.final_amount, 0)
-    let pendingOrders = filteredAndSortedOrders.filter(order => order.status === 'pending').length
-    let confirmedOrders = filteredAndSortedOrders.filter(order => order.status === 'confirmed').length
-    let processingOrders = filteredAndSortedOrders.filter(order => order.status === 'processing').length
-    let shippedOrders = filteredAndSortedOrders.filter(order => order.status === 'shipped').length
-    let deliveredOrders = filteredAndSortedOrders.filter(order => order.status === 'delivered').length
-    let cancelledOrders = filteredAndSortedOrders.filter(order => order.status === 'cancelled').length
+    const totalOrders = filteredAndSortedOrders.length
+    const totalValue = filteredAndSortedOrders.reduce((sum, order) => sum + order.final_amount, 0)
+    const pendingOrders = filteredAndSortedOrders.filter(order => order.status === 'pending').length
+    const confirmedOrders = filteredAndSortedOrders.filter(order => order.status === 'confirmed').length
+    const processingOrders = filteredAndSortedOrders.filter(order => order.status === 'processing').length
+    const shippedOrders = filteredAndSortedOrders.filter(order => order.status === 'shipped').length
+    const deliveredOrders = filteredAndSortedOrders.filter(order => order.status === 'delivered').length
+    const cancelledOrders = filteredAndSortedOrders.filter(order => order.status === 'cancelled').length
 
     return { 
       totalOrders, 
@@ -776,7 +777,7 @@ export default function OrdersPage() {
           <AlertDialogHeader>
             <AlertDialogTitle className="text-gray-900">Delete Order</AlertDialogTitle>
             <AlertDialogDescription className="text-gray-600">
-              Are you sure you want to delete order "{orderToDelete?.order_number}"? 
+              Are you sure you want to delete order &quot;{orderToDelete?.order_number}&quot;? 
               This will also delete all order items and cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>

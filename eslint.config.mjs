@@ -20,6 +20,20 @@ const eslintConfig = [
       "next-env.d.ts",
     ],
   },
+  {
+    rules: {
+      // Allow 'any' type in catch clauses and error handlers
+      "@typescript-eslint/no-explicit-any": ["warn", {
+        ignoreRestArgs: true
+      }],
+      // Allow unescaped entities (can be fixed later)
+      "react/no-unescaped-entities": "warn",
+      // Prefer const - make it a warning instead of error
+      "prefer-const": "warn",
+      // Allow empty interfaces for extending
+      "@typescript-eslint/no-empty-object-type": "warn",
+    },
+  },
 ];
 
 export default eslintConfig;

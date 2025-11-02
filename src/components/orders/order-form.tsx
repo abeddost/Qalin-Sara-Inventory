@@ -156,7 +156,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     setOrderItems(orderItems.filter((_, i) => i !== index))
   }
 
-  const updateOrderItem = (index: number, field: keyof OrderItem, value: any) => {
+  const updateOrderItem = (index: number, field: keyof OrderItem, value: string | number | null) => {
     console.log('updateOrderItem called:', { index, field, value })
     
     setOrderItems(prevItems => {
@@ -338,9 +338,10 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
 
       onSuccess()
       onOpenChange(false)
-    } catch (error: any) {
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to save order'
       console.error('Error saving order:', error)
-      toast.error(error.message || 'Failed to save order')
+      toast.error(errorMessage)
     } finally {
       setIsLoading(false)
     }
@@ -539,7 +540,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                 <div className="text-center py-8 text-gray-500">
                   <Package className="h-12 w-12 mx-auto mb-4 text-gray-300" />
                   <p>No items added yet</p>
-                  <p className="text-sm">Click "Add Item" to start building your order</p>
+                  <p className="text-sm">Click &quot;Add Item&quot; to start building your order</p>
                 </div>
               ) : (
                 <div className="space-y-4">
