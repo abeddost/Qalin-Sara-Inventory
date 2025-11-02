@@ -271,7 +271,10 @@ export default function OrdersPage() {
         return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
       }
       
-      return sortOrder === 'asc' ? aValue - bValue : bValue - aValue
+      // Ensure both values are numbers for arithmetic operations
+      const aNum = typeof aValue === 'number' ? aValue : Number(aValue) || 0
+      const bNum = typeof bValue === 'number' ? bValue : Number(bValue) || 0
+      return sortOrder === 'asc' ? aNum - bNum : bNum - aNum
     })
 
   const handleDelete = (order: OrderWithItems) => {
@@ -800,7 +803,7 @@ export default function OrdersPage() {
       <OrderForm
         open={isOrderFormOpen}
         onOpenChange={setIsOrderFormOpen}
-        order={orderToEdit}
+        order={orderToEdit || undefined}
         onSuccess={() => {
           fetchOrders()
           setOrderToEdit(null)

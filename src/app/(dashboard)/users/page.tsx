@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useUserProfile } from '@/lib/hooks/use-user-profile'
-import type { User } from '@supabase/supabase-js'
+import type { User as SupabaseUser } from '@supabase/supabase-js'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -26,7 +26,7 @@ import {
   Loader2
 } from 'lucide-react'
 
-interface User {
+interface UserProfile {
   id: string
   email: string
   first_name?: string
@@ -39,8 +39,8 @@ interface User {
 }
 
 export default function UserManagementPage() {
-  const [users, setUsers] = useState<User[]>([])
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
+  const [users, setUsers] = useState<UserProfile[]>([])
+  const [filteredUsers, setFilteredUsers] = useState<UserProfile[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isCreatingUser, setIsCreatingUser] = useState(false)
@@ -56,7 +56,7 @@ export default function UserManagementPage() {
   const supabase = createClient()
   
   // Get current user from the data attribute set by layout
-  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [currentUser, setCurrentUser] = useState<SupabaseUser | null>(null)
   const { isAdmin } = useUserProfile(currentUser)
 
   useEffect(() => {
@@ -81,7 +81,7 @@ export default function UserManagementPage() {
 
   useEffect(() => {
     const filtered = users.filter(user =>
-      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.last_name?.toLowerCase().includes(searchTerm.toLowerCase())
     )
@@ -108,7 +108,7 @@ export default function UserManagementPage() {
         const profile = profiles?.find(p => p.id === user.id)
         return {
           id: user.id,
-          email: user.email,
+          email: user.email || '',
           first_name: profile?.first_name || user.user_metadata?.first_name,
           last_name: profile?.last_name || user.user_metadata?.last_name,
           phone: profile?.phone || user.user_metadata?.phone,
@@ -184,7 +184,7 @@ export default function UserManagementPage() {
     return new Date(dateString).toLocaleDateString()
   }
 
-  const getStatusBadge = (user: User) => {
+  const getStatusBadge = (user: UserProfile) => {
     if (user.email_confirmed_at) {
       return <Badge variant="default" className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Verified</Badge>
     }

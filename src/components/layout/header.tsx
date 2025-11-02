@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from './user-menu'
-import { Bell, Settings, Plus, AlertCircle, Package, DollarSign, User, Shield, Palette } from 'lucide-react'
+import { Bell, Settings, Plus, AlertCircle, Package, DollarSign, User as UserIcon, Shield, Palette } from 'lucide-react'
 import type { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
@@ -224,7 +224,7 @@ export function Header({ onAddProduct, user }: HeaderProps) {
                     className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors group"
                   >
                     <div className="flex items-center space-x-3">
-                      <User className="h-4 w-4" />
+                      <UserIcon className="h-4 w-4" />
                       <span>My Profile</span>
                     </div>
                     <span className="text-xs text-gray-400 group-hover:text-gray-600">Edit personal info</span>

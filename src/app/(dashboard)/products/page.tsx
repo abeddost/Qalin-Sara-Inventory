@@ -28,7 +28,7 @@ export default function ProductsPage() {
   const [totalExpenses, setTotalExpenses] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
   const [isFormOpen, setIsFormOpen] = useState(false)
-  const [user, setUser] = useState<{ id: string; email?: string; user_metadata?: { first_name?: string; last_name?: string } } | null>(null)
+  const [user, setUser] = useState<import('@supabase/supabase-js').User | null>(null)
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const supabase = createClient()
