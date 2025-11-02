@@ -144,12 +144,12 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
-  const [sortBy, setSortBy] = useState<'expense_name' | 'category' | 'amount' | 'date' | 'status' | 'payment_method'>('date')
+  const [sortBy, setSortBy] = useState<'description' | 'category' | 'amount' | 'date' | 'status' | 'payment_method'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   
   const supabase = createClient()
 
-  const handleSort = (column: 'expense_name' | 'category' | 'amount' | 'date' | 'status' | 'payment_method') => {
+  const handleSort = (column: 'description' | 'category' | 'amount' | 'date' | 'status' | 'payment_method') => {
     if (sortBy === column) {
       setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc')
     } else {
@@ -203,11 +203,11 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
       let comparison = 0
       
       switch (sortBy) {
-        case 'expense_name':
-          comparison = (a.expense_name || '').localeCompare(b.expense_name || '')
+        case 'description':
+          comparison = (a.description || '').localeCompare(b.description || '')
           break
         case 'category':
-          comparison = (a.category?.name || '').localeCompare(b.category?.name || '')
+          comparison = (a.expense_categories?.name || '').localeCompare(b.expense_categories?.name || '')
           break
         case 'amount':
           comparison = a.amount - b.amount
@@ -418,11 +418,11 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
                       ? 'text-gray-300 hover:bg-gray-700' 
                       : 'text-gray-500 hover:bg-gray-100'
                   }`}
-                  onClick={() => handleSort('expense_name')}
+                  onClick={() => handleSort('description')}
                 >
                   <div className="flex items-center gap-1">
                     Expense
-                    {sortBy === 'expense_name' && (
+                    {sortBy === 'description' && (
                       sortOrder === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />
                     )}
                   </div>

@@ -410,7 +410,7 @@ export default function UserManagementPage() {
                           className={user.role === 'admin' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'}
                         >
                           <Shield className="w-3 h-3 mr-1" />
-                          {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+                          {user.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'User'}
                         </Badge>
                       </td>
                       <td className="p-4">

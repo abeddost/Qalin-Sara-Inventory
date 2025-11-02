@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { createClient } from '@/lib/supabase/client'
-import { Invoice, InvoiceItem, Product, Order } from '@/types/database'
+import { Invoice, InvoiceItem, Product, Order, ProductWithSizes } from '@/types/database'
 import { toast } from 'sonner'
 import { useTheme } from '@/components/providers/theme-provider'
 
@@ -24,13 +24,25 @@ interface InvoiceItemWithTemp extends InvoiceItem {
 
 export default function InvoiceForm({ open, onClose, onSuccess, invoice }: InvoiceFormProps) {
   const { theme } = useTheme()
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    invoice_number: string
+    customer_name: string
+    customer_email: string
+    customer_phone: string
+    customer_address: string
+    status: 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled'
+    discount_amount: number | null
+    tax_rate: number | null
+    due_date: string
+    issue_date: string
+    notes: string
+  }>({
     invoice_number: '',
     customer_name: '',
     customer_email: '',
     customer_phone: '',
     customer_address: '',
-    status: 'draft' as 'draft' | 'sent' | 'paid' | 'overdue' | 'cancelled',
+    status: 'draft',
     discount_amount: null,
     tax_rate: null,
     due_date: '',
@@ -39,7 +51,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
   })
   
   const [invoiceItems, setInvoiceItems] = useState<InvoiceItemWithTemp[]>([])
-  const [products, setProducts] = useState<Product[]>([])
+  const [products, setProducts] = useState<ProductWithSizes[]>([])
   const [orders, setOrders] = useState<Order[]>([])
   const [selectedOrderId, setSelectedOrderId] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
@@ -66,8 +78,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           customer_phone: invoice.customer_phone || '',
           customer_address: invoice.customer_address || '',
           status: invoice.status,
-          discount_amount: invoice.discount_amount,
-          tax_rate: invoice.tax_rate,
+          discount_amount: invoice.discount_amount !== undefined ? invoice.discount_amount : null,
+          tax_rate: invoice.tax_rate !== undefined ? invoice.tax_rate : null,
           due_date: invoice.due_date || '',
           issue_date: invoice.issue_date || new Date().toISOString().split('T')[0],
           notes: invoice.notes || ''
@@ -157,6 +169,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
   const addInvoiceItem = () => {
     const newItem: InvoiceItemWithTemp = {
+      id: '',
+      created_at: new Date().toISOString(),
       temp_id: `temp-${Date.now()}-${Math.random()}`,
       invoice_id: '',
       product_id: '',
@@ -264,6 +278,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
 
           if (orderItems && orderItems.length > 0) {
             const convertedItems: InvoiceItemWithTemp[] = orderItems.map((item, index) => ({
+              id: '',
+              created_at: new Date().toISOString(),
               temp_id: `temp-${Date.now()}-${index}`,
               invoice_id: '',
               product_id: item.product_id,

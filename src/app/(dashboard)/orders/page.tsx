@@ -240,40 +240,50 @@ export default function OrdersPage() {
       return matchesSearch && matchesStatus
     })
     .sort((a, b) => {
-      let aValue: string | number | Date, bValue: string | number | Date
+      // Handle string comparisons
+      if (sortBy === 'order_number' || sortBy === 'customer_name' || sortBy === 'status') {
+        let aStr: string
+        let bStr: string
+        
+        switch (sortBy) {
+          case 'order_number':
+            aStr = a.order_number
+            bStr = b.order_number
+            break
+          case 'customer_name':
+            aStr = a.customer_name
+            bStr = b.customer_name
+            break
+          case 'status':
+            aStr = a.status
+            bStr = b.status
+            break
+          default:
+            return 0
+        }
+        
+        return sortOrder === 'asc' 
+          ? aStr.localeCompare(bStr) 
+          : bStr.localeCompare(aStr)
+      }
+      
+      // Handle numeric comparisons
+      let aNum: number
+      let bNum: number
       
       switch (sortBy) {
-        case 'order_number':
-          aValue = a.order_number
-          bValue = b.order_number
-          break
-        case 'customer_name':
-          aValue = a.customer_name
-          bValue = b.customer_name
-          break
-        case 'status':
-          aValue = a.status
-          bValue = b.status
-          break
         case 'created_at':
-          aValue = new Date(a.created_at).getTime()
-          bValue = new Date(b.created_at).getTime()
+          aNum = new Date(a.created_at).getTime()
+          bNum = new Date(b.created_at).getTime()
           break
         case 'final_amount':
-          aValue = a.final_amount
-          bValue = b.final_amount
+          aNum = Number(a.final_amount) || 0
+          bNum = Number(b.final_amount) || 0
           break
         default:
           return 0
       }
-
-      if (typeof aValue === 'string' && typeof bValue === 'string') {
-        return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue)
-      }
       
-      // Ensure both values are numbers for arithmetic operations
-      const aNum = typeof aValue === 'number' ? aValue : Number(aValue) || 0
-      const bNum = typeof bValue === 'number' ? bValue : Number(bValue) || 0
       return sortOrder === 'asc' ? aNum - bNum : bNum - aNum
     })
 
