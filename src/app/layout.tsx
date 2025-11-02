@@ -3,7 +3,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/providers/theme-provider";
-import { LocaleProvider } from "@/components/providers/locale-provider";
 import { GlobalThemeWrapper } from "@/components/providers/global-theme-wrapper";
 
 const geistSans = Geist({
@@ -35,15 +34,10 @@ export default function RootLayout({
           defaultTheme="system"
           storageKey="qalin-sara-theme"
         >
-          <LocaleProvider
-            defaultLocale="en"
-            storageKey="qalin-sara-locale"
-          >
-            <GlobalThemeWrapper>
-              {children}
-              <Toaster />
-            </GlobalThemeWrapper>
-          </LocaleProvider>
+          <GlobalThemeWrapper>
+            {children}
+            <Toaster />
+          </GlobalThemeWrapper>
         </ThemeProvider>
       </body>
     </html>

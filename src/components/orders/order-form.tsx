@@ -39,7 +39,8 @@ interface OrderItem {
   product_id: string
   product_size: string
   quantity: number
-  unit_price: number | null
+  total_area: number | null  // Total area in m²
+  unit_price: number | null  // Price per m²
   total_price: number
 }
 
@@ -89,6 +90,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           product_id: item.product_id,
           product_size: item.product_size,
           quantity: item.quantity,
+          total_area: null, // Will be calculated if needed, or can be set manually
           unit_price: item.unit_price,
           total_price: item.total_price
         })))
@@ -144,6 +146,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       product_id: '',
       product_size: '',
       quantity: 1,
+      total_area: null,
       unit_price: null,
       total_price: 0
     }])
@@ -170,9 +173,11 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       
       updatedItems[index] = { ...currentItem, [field]: value }
       
-      // Recalculate total price when quantity or unit price changes
-      if (field === 'quantity' || field === 'unit_price') {
-        updatedItems[index].total_price = updatedItems[index].quantity * (updatedItems[index].unit_price || 0)
+      // Recalculate total price when total_area or unit_price changes
+      if (field === 'total_area' || field === 'unit_price') {
+        const area = updatedItems[index].total_area || 0
+        const pricePerM2 = updatedItems[index].unit_price || 0
+        updatedItems[index].total_price = area * pricePerM2
       }
       
       console.log('Updated orderItems:', updatedItems)
@@ -540,7 +545,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                 <div className="space-y-4">
                   {orderItems.map((item, index) => (
                     <div key={item.temp_id || `order-item-${index}`} className="border border-gray-200 rounded-lg p-4">
-                      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 items-end">
+                      <div className="grid grid-cols-1 md:grid-cols-7 gap-4 items-end">
                         <div>
                           <Label className="mb-2">Product</Label>
                           <select
@@ -551,6 +556,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                               console.log('Current orderItems before update:', orderItems)
                               updateOrderItem(index, 'product_id', e.target.value)
                               updateOrderItem(index, 'product_size', '')
+                              updateOrderItem(index, 'total_area', null)
                               updateOrderItem(index, 'unit_price', null)
                             }}
                             onClick={(e) => {
@@ -584,6 +590,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                               updateOrderItem(index, 'product_size', e.target.value)
                               const price = getProductSizePrice(item.product_id, e.target.value)
                               updateOrderItem(index, 'unit_price', price || null)
+                              // Optionally calculate area based on size (e.g., if size is "12m", area might be 12*12=144m²)
+                              // For now, user will enter area manually
                             }}
                             disabled={!item.product_id}
                             className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
@@ -619,7 +627,35 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         </div>
                         
                         <div>
-                          <Label className="mb-2">Unit Price</Label>
+                          <Label className="mb-2">Total Area (m²)</Label>
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={item.total_area === null ? '' : item.total_area}
+                            placeholder="0"
+                            onChange={(e) => {
+                              const value = e.target.value
+                              if (value === '') {
+                                updateOrderItem(index, 'total_area', null)
+                              } else {
+                                const numValue = parseFloat(value)
+                                if (!isNaN(numValue)) {
+                                  updateOrderItem(index, 'total_area', numValue)
+                                }
+                              }
+                            }}
+                            className="mt-1"
+                            style={{
+                              backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
+                              color: theme === 'dark' ? '#f9fafb' : '#111827',
+                              borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
+                            }}
+                          />
+                        </div>
+                        
+                        <div>
+                          <Label className="mb-2">Price per m²</Label>
                           <Input
                             type="number"
                             min="0"
