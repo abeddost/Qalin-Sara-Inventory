@@ -1,12 +1,13 @@
 'use client'
 
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { toast } from 'sonner'
 import { LogOut, Search, Moon, Sun } from 'lucide-react'
 import { useState, useEffect } from 'react'
+import { useUserProfile } from '@/lib/hooks/use-user-profile'
 
 interface NavbarProps {
   user: User
@@ -16,6 +17,7 @@ export function Navbar({ user }: NavbarProps) {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const { getUserDisplayName, getUserRole } = useUserProfile(user)
 
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut()
@@ -103,10 +105,10 @@ export function Navbar({ user }: NavbarProps) {
             <div className="flex items-center space-x-3">
               <div className="text-right">
                 <p className="text-sm font-medium text-foreground">
-                  {user.email}
+                  {getUserDisplayName()}
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Administrator
+                  {getUserRole()}
                 </p>
               </div>
               

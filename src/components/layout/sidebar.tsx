@@ -1,6 +1,6 @@
 'use client'
 
-import { User } from '@supabase/supabase-js'
+import type { User } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter, usePathname } from 'next/navigation'
 import { Button } from '@/components/ui/button'
@@ -17,16 +17,18 @@ import {
   TrendingUp,
   ShoppingCart,
   Receipt,
-  DollarSign
+  DollarSign,
+  Users
 } from 'lucide-react'
 import { useState } from 'react'
 import Link from 'next/link'
+import { useUserProfile } from '@/lib/hooks/use-user-profile'
 
 interface SidebarProps {
   user: User
 }
 
-const navigation = [
+const baseNavigation = [
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Inventory', href: '/products', icon: Package },
   { name: 'Orders', href: '/orders', icon: ShoppingCart },
@@ -35,12 +37,17 @@ const navigation = [
   { name: 'Settings', href: '/settings', icon: Settings },
 ]
 
+const adminNavigation = [
+  { name: 'Users', href: '/users', icon: Users },
+]
+
 export function Sidebar({ user }: SidebarProps) {
   const { theme } = useTheme()
   const [isCollapsed, setIsCollapsed] = useState(false)
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
+  const { getUserDisplayName, getUserInitials, getUserRole, isAdmin } = useUserProfile(user)
 
   const handleSignOut = async () => {
     try {
@@ -112,16 +119,16 @@ export function Sidebar({ user }: SidebarProps) {
           {/* User Status */}
           <div className="p-4 border-b border-slate-700">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-slate-700 rounded-full flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-qalin-red to-qalin-red-light rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-white">
-                  {user.email?.charAt(0).toUpperCase()}
+                  {getUserInitials()}
                 </span>
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-white">ADMIN USER</p>
+                <p className="text-sm font-medium text-white">{getUserDisplayName()}</p>
                 <div className="flex items-center space-x-1">
                   <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span className="text-xs text-green-400">Online</span>
+                  <span className="text-xs text-green-400">{getUserRole()}</span>
                 </div>
               </div>
             </div>
@@ -129,7 +136,7 @@ export function Sidebar({ user }: SidebarProps) {
 
           {/* Navigation */}
           <nav className="flex-1 px-4 py-4 space-y-1">
-            {navigation.map((item) => {
+            {[...baseNavigation, ...(isAdmin() ? adminNavigation : [])].map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link

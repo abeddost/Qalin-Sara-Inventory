@@ -127,7 +127,10 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>
-              Need an account? Contact your administrator to get started.
+              Need an account?{' '}
+              <Link href="/register" className="text-qalin-red hover:underline">
+                Create one here
+              </Link>
             </p>
           </div>
         </CardContent>

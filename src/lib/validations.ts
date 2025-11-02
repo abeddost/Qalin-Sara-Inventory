@@ -28,6 +28,20 @@ export const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 })
 
+// Registration validation schema
+export const registerSchema = z.object({
+  firstName: z.string().min(1, 'First name is required').max(50, 'First name too long'),
+  lastName: z.string().min(1, 'Last name is required').max(50, 'Last name too long'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().min(10, 'Phone number must be at least 10 digits').max(15, 'Phone number too long'),
+  password: z.string().min(8, 'Password must be at least 8 characters').max(100, 'Password too long'),
+  confirmPassword: z.string().min(8, 'Password confirmation is required'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+})
+
 export type ProductFormData = z.infer<typeof productFormSchema>
 export type SizeEntry = z.infer<typeof sizeEntrySchema>
 export type LoginFormData = z.infer<typeof loginSchema>
+export type RegisterFormData = z.infer<typeof registerSchema>

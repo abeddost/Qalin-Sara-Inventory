@@ -15,8 +15,6 @@ import { toast } from 'sonner'
 import { 
   User, 
   Settings, 
-  Bell, 
-  Shield, 
   Palette, 
   Database,
   Save,
@@ -35,12 +33,17 @@ import {
   Eye,
   EyeOff,
   Key,
-  Smartphone,
   Clock,
   HardDrive,
   Trash2,
   RefreshCw
 } from 'lucide-react'
+import { UserProfileForm } from './user-profile-form'
+import type { User } from '@supabase/supabase-js'
+
+interface SettingsFormProps {
+  user: User
+}
 
 interface SettingsData {
   // Company Information
@@ -92,7 +95,7 @@ interface SettingsData {
   exportFormat: string
 }
 
-export default function SettingsForm() {
+export default function SettingsForm({ user }: SettingsFormProps) {
   const { theme, setTheme } = useTheme()
   const { locale, setLocale, timezone, setTimezone, dateFormat, setDateFormat, currencyPosition, setCurrencyPosition } = useLocale()
   const { t } = useTranslation()
@@ -367,6 +370,11 @@ export default function SettingsForm() {
   }
 
   const handlePasswordChange = async () => {
+    if (!passwordData.currentPassword) {
+      toast.error('Current password is required')
+      return
+    }
+
     if (passwordData.newPassword !== passwordData.confirmPassword) {
       toast.error('New passwords do not match')
       return
@@ -377,8 +385,25 @@ export default function SettingsForm() {
       return
     }
 
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      toast.error('New password must be different from current password')
+      return
+    }
+
     setIsLoading(true)
     try {
+      // First, verify the current password by attempting to sign in
+      const { data: { user }, error: signInError } = await supabase.auth.signInWithPassword({
+        email: settings.email,
+        password: passwordData.currentPassword
+      })
+
+      if (signInError || !user) {
+        toast.error('Current password is incorrect')
+        return
+      }
+
+      // If current password is correct, update to new password
       const { error } = await supabase.auth.updateUser({
         password: passwordData.newPassword
       })
@@ -613,8 +638,6 @@ export default function SettingsForm() {
     { id: 'company', label: t('company'), icon: User },
     { id: 'business', label: t('business'), icon: Settings },
     { id: 'profile', label: t('profile'), icon: User },
-    { id: 'notifications', label: t('notifications'), icon: Bell },
-    { id: 'security', label: t('security'), icon: Shield },
     { id: 'appearance', label: t('appearance'), icon: Palette },
     { id: 'data', label: t('data'), icon: Database }
   ]
@@ -896,14 +919,17 @@ export default function SettingsForm() {
 
           {/* User Profile */}
           {activeTab === 'profile' && (
-            <Card className="border-0 shadow-sm" style={getCardStyle()}>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
-                  <span style={getTextStyle()}>User Profile</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+            <div className="space-y-6">
+              <UserProfileForm user={user} />
+              
+              <Card className="border-0 shadow-sm" style={getCardStyle()}>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <User className="h-5 w-5" />
+                    <span style={getTextStyle()}>Account Settings</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="firstName" className="mb-2">First Name</Label>
@@ -1032,179 +1058,7 @@ export default function SettingsForm() {
                 </div>
               </CardContent>
             </Card>
-          )}
-
-          {/* Notifications */}
-          {activeTab === 'notifications' && (
-            <Card className="border-0 shadow-sm" style={getCardStyle()}>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Bell className="h-5 w-5" />
-                  <span style={getTextStyle()}>Notification Preferences</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <h3 className="text-lg font-medium text-gray-900">Email Notifications</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="emailNotifications">Email Notifications</Label>
-                        <p className="text-sm text-gray-500">Receive email alerts for important events</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="emailNotifications"
-                        checked={settings.emailNotifications}
-                        onChange={(e) => setSettings({...settings, emailNotifications: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="lowStockAlerts">Low Stock Alerts</Label>
-                        <p className="text-sm text-gray-500">Get notified when inventory is running low</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="lowStockAlerts"
-                        checked={settings.lowStockAlerts}
-                        onChange={(e) => setSettings({...settings, lowStockAlerts: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="orderNotifications">Order Notifications</Label>
-                        <p className="text-sm text-gray-500">Get notified about new orders and updates</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="orderNotifications"
-                        checked={settings.orderNotifications}
-                        onChange={(e) => setSettings({...settings, orderNotifications: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="invoiceNotifications">Invoice Notifications</Label>
-                        <p className="text-sm text-gray-500">Get notified about invoice updates</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="invoiceNotifications"
-                        checked={settings.invoiceNotifications}
-                        onChange={(e) => setSettings({...settings, invoiceNotifications: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label htmlFor="expenseNotifications">Expense Notifications</Label>
-                        <p className="text-sm text-gray-500">Get notified about expense approvals</p>
-                      </div>
-                      <input
-                        type="checkbox"
-                        id="expenseNotifications"
-                        checked={settings.expenseNotifications}
-                        onChange={(e) => setSettings({...settings, expenseNotifications: e.target.checked})}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4 border-t pt-6">
-                  <h3 className="text-lg font-medium text-gray-900">SMS Notifications</h3>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label htmlFor="smsNotifications">SMS Notifications</Label>
-                      <p className="text-sm text-gray-500">Receive SMS alerts for urgent events</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      id="smsNotifications"
-                      checked={settings.smsNotifications}
-                      onChange={(e) => setSettings({...settings, smsNotifications: e.target.checked})}
-                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Security */}
-          {activeTab === 'security' && (
-            <Card className="border-0 shadow-sm" style={getCardStyle()}>
-              <CardHeader>
-                <CardTitle className="flex items-center space-x-2">
-                  <Shield className="h-5 w-5" />
-                  <span style={getTextStyle()}>Security Settings</span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label>Two-Factor Authentication</Label>
-                      <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
-                    </div>
-                    <div className="flex items-center space-x-3">
-                      <Badge className={settings.twoFactorEnabled ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}>
-                        {settings.twoFactorEnabled ? 'Enabled' : 'Disabled'}
-                      </Badge>
-                      <Button variant="outline" size="sm">
-                        <Smartphone className="h-4 w-4 mr-2" />
-                        {settings.twoFactorEnabled ? 'Disable' : 'Enable'}
-                      </Button>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label htmlFor="sessionTimeout" className="mb-2">Session Timeout (minutes)</Label>
-                    <Input
-                      id="sessionTimeout"
-                      type="number"
-                      value={settings.sessionTimeout}
-                      onChange={(e) => setSettings({...settings, sessionTimeout: parseInt(e.target.value)})}
-                      className="bg-white"
-                      min="5"
-                      max="480"
-                    />
-                  </div>
-                  
-                  <div className="pt-4 border-t">
-                    <h3 className="text-lg font-medium text-gray-900 mb-4">Active Sessions</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                          <div>
-                            <p className="font-medium text-gray-900">Current Session</p>
-                            <p className="text-sm text-gray-500">Chrome on Windows • New York, US</p>
-                          </div>
-                        </div>
-                        <Badge className="bg-green-100 text-green-800">Active</Badge>
-                      </div>
-                      <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-center space-x-3">
-                          <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
-                          <div>
-                            <p className="font-medium text-gray-900">Mobile App</p>
-                            <p className="text-sm text-gray-500">iOS Safari • 2 hours ago</p>
-                          </div>
-                        </div>
-                        <Button variant="outline" size="sm">
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            </div>
           )}
 
           {/* Appearance */}

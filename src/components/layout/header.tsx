@@ -4,8 +4,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from './user-menu'
-import { Bell, Settings, Plus, AlertCircle, Package, DollarSign } from 'lucide-react'
-import { User } from '@supabase/supabase-js'
+import { Bell, Settings, Plus, AlertCircle, Package, DollarSign, User, Shield, Palette } from 'lucide-react'
+import type { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
   onAddProduct: () => void
@@ -15,24 +15,29 @@ interface HeaderProps {
 export function Header({ onAddProduct, user }: HeaderProps) {
   const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const notificationsRef = useRef<HTMLDivElement>(null)
+  const settingsRef = useRef<HTMLDivElement>(null)
 
-  // Close notifications dropdown when clicking outside
+  // Close dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
         setShowNotifications(false)
       }
+      if (settingsRef.current && !settingsRef.current.contains(event.target as Node)) {
+        setShowSettings(false)
+      }
     }
 
-    if (showNotifications) {
+    if (showNotifications || showSettings) {
       document.addEventListener('mousedown', handleClickOutside)
     }
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
-  }, [showNotifications])
+  }, [showNotifications, showSettings])
 
   // Sample notifications data - in a real app, this would come from an API
   const notifications = [
@@ -85,10 +90,10 @@ export function Header({ onAddProduct, user }: HeaderProps) {
         <div className="flex items-center space-x-3">
           <Button 
             onClick={onAddProduct}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 px-4 py-2 rounded-md transition-colors"
           >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
+            <Plus className="h-4 w-4" />
+            <span className="font-medium">Add Product</span>
           </Button>
         </div>
         
@@ -98,12 +103,13 @@ export function Header({ onAddProduct, user }: HeaderProps) {
             <Button 
               variant="ghost" 
               size="sm" 
-              className="relative"
+              className="relative flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
               onClick={() => setShowNotifications(!showNotifications)}
             >
-              <Bell className="h-5 w-5" />
+              <Bell className="h-4 w-4" />
+              <span className="text-sm font-medium">Notifications</span>
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
+                <span className="h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                   {unreadCount}
                 </span>
               )}
@@ -176,14 +182,85 @@ export function Header({ onAddProduct, user }: HeaderProps) {
           </div>
 
           {/* Settings */}
-          <Button 
-            variant="ghost" 
-            size="sm"
-            onClick={handleSettingsClick}
-            title="Settings"
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
+          <div className="relative" ref={settingsRef}>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setShowSettings(!showSettings)}
+              className="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
+              title="Quick Settings"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="text-sm font-medium">Quick Settings</span>
+            </Button>
+
+            {/* Settings Dropdown */}
+            {showSettings && (
+              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                {/* User Info Header */}
+                <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-medium">
+                      {user?.email?.charAt(0).toUpperCase() || 'U'}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-gray-900 truncate">
+                        {user?.user_metadata?.first_name || 'User'} {user?.user_metadata?.last_name || ''}
+                      </p>
+                      <p className="text-xs text-gray-500 truncate">
+                        {user?.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Menu Options */}
+                <div className="p-2">
+                  <button
+                    onClick={() => {
+                      router.push('/settings')
+                      setShowSettings(false)
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <User className="h-4 w-4" />
+                      <span>My Profile</span>
+                    </div>
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600">Edit personal info</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      router.push('/users')
+                      setShowSettings(false)
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Shield className="h-4 w-4" />
+                      <span>Manage Users</span>
+                    </div>
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600">Admin only</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      router.push('/settings')
+                      setShowSettings(false)
+                    }}
+                    className="w-full flex items-center justify-between px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md transition-colors group"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Palette className="h-4 w-4" />
+                      <span>Preferences</span>
+                    </div>
+                    <span className="text-xs text-gray-400 group-hover:text-gray-600">Theme & language</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* User Menu */}
           <UserMenu user={user} />
