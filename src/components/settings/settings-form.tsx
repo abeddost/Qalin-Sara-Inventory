@@ -13,7 +13,7 @@ import { useLocale } from '@/components/providers/locale-provider'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { toast } from 'sonner'
 import { 
-  User, 
+  User as UserIcon, 
   Settings, 
   Palette, 
   Database,
@@ -635,9 +635,9 @@ export default function SettingsForm({ user }: SettingsFormProps) {
   }
 
   const tabs = [
-    { id: 'company', label: t('company'), icon: User },
+    { id: 'company', label: t('company'), icon: UserIcon },
     { id: 'business', label: t('business'), icon: Settings },
-    { id: 'profile', label: t('profile'), icon: User },
+    { id: 'profile', label: t('profile'), icon: UserIcon },
     { id: 'appearance', label: t('appearance'), icon: Palette },
     { id: 'data', label: t('data'), icon: Database }
   ]
@@ -771,7 +771,7 @@ export default function SettingsForm({ user }: SettingsFormProps) {
             >
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
-                  <User className="h-5 w-5" />
+                  <UserIcon className="h-5 w-5" />
                   <span style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}>
                     Company Information
                   </span>
@@ -925,7 +925,7 @@ export default function SettingsForm({ user }: SettingsFormProps) {
               <Card className="border-0 shadow-sm" style={getCardStyle()}>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
-                    <User className="h-5 w-5" />
+                    <UserIcon className="h-5 w-5" />
                     <span style={getTextStyle()}>Account Settings</span>
                   </CardTitle>
                 </CardHeader>
@@ -1264,8 +1264,8 @@ export default function SettingsForm({ user }: SettingsFormProps) {
                     <div 
                       className="p-4 rounded-lg border-2 cursor-pointer transition-all"
                       style={{
-                        borderColor: theme === 'dark' ? '#3b82f6' : (theme === 'dark' ? '#4b5563' : '#e5e7eb'),
-                        backgroundColor: theme === 'dark' ? '#1e40af' : (theme === 'dark' ? '#374151' : '#ffffff')
+                        borderColor: theme === 'dark' ? '#3b82f6' : '#e5e7eb',
+                        backgroundColor: theme === 'dark' ? '#1e40af' : '#ffffff'
                       }}
                       onClick={() => {
                         setTheme('dark')

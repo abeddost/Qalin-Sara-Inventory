@@ -48,16 +48,26 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
   const { theme } = useTheme()
   const [isLoading, setIsLoading] = useState(false)
   const [products, setProducts] = useState<ProductWithSizes[]>([])
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    order_number: string
+    customer_name: string
+    customer_email: string
+    customer_phone: string
+    customer_address: string
+    status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+    notes: string
+    discount_amount: number | null
+    tax_amount: number | null
+  }>({
     order_number: '',
     customer_name: '',
     customer_email: '',
     customer_phone: '',
     customer_address: '',
-    status: 'pending' as const,
+    status: 'pending',
     notes: '',
-    discount_amount: null as number | null,
-    tax_amount: null as number | null
+    discount_amount: null,
+    tax_amount: null
   })
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
   const supabase = createClient()

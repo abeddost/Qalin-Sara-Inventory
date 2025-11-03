@@ -232,13 +232,13 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
                           src={product.photo_url}
                           alt={product.code}
                           className="w-12 h-12 object-cover rounded border cursor-pointer hover:opacity-80"
-                          onClick={() => handleImagePreview(product.photo_url)}
+                          onClick={() => product.photo_url && handleImagePreview(product.photo_url)}
                         />
                         <Button
                           size="sm"
                           variant="ghost"
                           className="absolute -top-1 -right-1 h-6 w-6 p-0"
-                          onClick={() => handleImagePreview(product.photo_url)}
+                          onClick={() => product.photo_url && handleImagePreview(product.photo_url)}
                         >
                           <Eye className="h-3 w-3" />
                         </Button>

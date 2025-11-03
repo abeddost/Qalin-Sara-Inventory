@@ -137,7 +137,7 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
   const [sortBy, setSortBy] = useState<'invoice_number' | 'customer_name' | 'status' | 'issue_date' | 'due_date' | 'total_amount'>('issue_date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [selectedInvoice, setSelectedInvoice] = useState<InvoiceWithItems | undefined>(undefined)
-  const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | undefined>(undefined)
+  const [viewInvoice, setViewInvoice] = useState<InvoiceWithItems | null>(null)
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [isViewOpen, setIsViewOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
@@ -604,7 +604,7 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
         open={isViewOpen}
         onClose={() => {
           setIsViewOpen(false)
-          setViewInvoice(undefined)
+          setViewInvoice(null)
         }}
         invoice={viewInvoice}
       />

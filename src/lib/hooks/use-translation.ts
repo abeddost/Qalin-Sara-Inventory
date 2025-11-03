@@ -29,10 +29,14 @@ export function useTranslation() {
     let value: Record<string, unknown> | string = translations[locale] || translations.en
     
     for (const k of keys) {
-      value = value?.[k]
+      if (typeof value === 'object' && value !== null) {
+        value = value[k] as Record<string, unknown> | string
+      } else {
+        break
+      }
     }
     
-    return value || key
+    return (typeof value === 'string' ? value : null) || key
   }
   
   return { t, locale }

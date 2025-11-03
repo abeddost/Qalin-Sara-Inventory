@@ -67,11 +67,12 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
     photo: z.any().optional(),
   })
 
-  const form = useForm<ProductFormData>({
+  type CustomProductFormData = z.infer<typeof customProductSchema>
+
+  const form = useForm<CustomProductFormData>({
     resolver: zodResolver(customProductSchema),
     defaultValues: {
       code: product?.code || '',
-      sizes: [], // We'll handle sizes separately
     },
   })
 
@@ -86,7 +87,6 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
         // Editing existing product
         form.reset({
           code: product.code || '',
-          sizes: [],
         })
         setPhotoPreview(product.photo_url || null)
         setPhotoFile(null)
@@ -103,7 +103,6 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
         // Creating new product
         form.reset({
           code: '',
-          sizes: [],
         })
         setPhotoPreview(null)
         setPhotoFile(null)
@@ -235,7 +234,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
     ))
   }
 
-  const onSubmit = async (data: ProductFormData) => {
+  const onSubmit = async (data: CustomProductFormData) => {
     console.log('🚨 FORM SUBMISSION TRIGGERED! 🚨', {
       currentStep,
       isEditing: !!product,
@@ -578,7 +577,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                   min="0"
                   value={entry.count === null ? '' : entry.count}
                   placeholder="0"
-                  onChange={(e) => updateSizeEntry(entry.id, 'count', e.target.value === '' ? null : parseInt(e.target.value) || 0)}
+                  onChange={(e) => updateSizeEntry(entry.id, 'count', e.target.value === '' ? 0 : parseInt(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -597,7 +596,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                   step="0.01"
                   value={entry.purchase_price === null ? '' : entry.purchase_price}
                   placeholder="0"
-                  onChange={(e) => updateSizeEntry(entry.id, 'purchase_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
+                  onChange={(e) => updateSizeEntry(entry.id, 'purchase_price', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {
@@ -616,7 +615,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                   step="0.01"
                   value={entry.selling_price === null ? '' : entry.selling_price}
                   placeholder="0"
-                  onChange={(e) => updateSizeEntry(entry.id, 'selling_price', e.target.value === '' ? null : parseFloat(e.target.value) || 0)}
+                  onChange={(e) => updateSizeEntry(entry.id, 'selling_price', e.target.value === '' ? 0 : parseFloat(e.target.value) || 0)}
                   className="mt-1 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
                   onKeyDown={(e) => {
                     if (e.key === 'Enter') {

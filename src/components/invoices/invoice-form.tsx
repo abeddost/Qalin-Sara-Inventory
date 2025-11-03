@@ -211,7 +211,8 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
     setRenderKey(prev => prev + 1)  // Force re-render
   }
 
-  const getProductSizes = (productId: string) => {
+  const getProductSizes = (productId: string | null) => {
+    if (!productId) return []
     const product = products.find(p => p.id === productId)
     return product?.product_sizes || []
   }
@@ -674,7 +675,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   <div className="md:col-span-2">
                     <Label className="mb-2">Product</Label>
                     <select
-                      value={item.product_id}
+                      value={item.product_id || ''}
                       onChange={(e) => {
                         const productId = e.target.value
                         const product = products.find(p => p.id === productId)
@@ -697,7 +698,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   <div className="md:col-span-2">
                     <Label className="mb-2">Size</Label>
                     <select
-                      value={item.product_size}
+                      value={item.product_size || ''}
                       onChange={(e) => {
                         const size = e.target.value
                         const product = products.find(p => p.id === item.product_id)
