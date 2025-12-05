@@ -103,6 +103,34 @@ export default function ExpenseForm({ open, onClose, onSuccess, expense }: Expen
         .order('name')
       
       if (error) throw error
+      
+      // If no categories exist, create default ones
+      if (!data || data.length === 0) {
+        const defaultCategories = [
+          { name: 'Office Supplies', description: 'Office equipment and supplies', color: '#3B82F6' },
+          { name: 'Utilities', description: 'Electricity, water, internet, etc.', color: '#10B981' },
+          { name: 'Rent', description: 'Office or warehouse rent', color: '#8B5CF6' },
+          { name: 'Transportation', description: 'Fuel, vehicle maintenance, shipping', color: '#F59E0B' },
+          { name: 'Marketing', description: 'Advertising and promotional expenses', color: '#EC4899' },
+          { name: 'Professional Services', description: 'Legal, accounting, consulting', color: '#6366F1' },
+          { name: 'Equipment', description: 'Machinery and equipment purchases', color: '#14B8A6' },
+          { name: 'Other', description: 'Miscellaneous expenses', color: '#6B7280' }
+        ]
+        
+        const { data: insertedCategories, error: insertError } = await supabase
+          .from('expense_categories')
+          .insert(defaultCategories)
+          .select()
+        
+        if (insertError) {
+          console.error('Error creating default categories:', insertError)
+          // Continue even if default categories fail to create
+        } else {
+          setCategories(insertedCategories || [])
+          return
+        }
+      }
+      
       setCategories(data || [])
     } catch (error) {
       console.error('Error fetching categories:', error)

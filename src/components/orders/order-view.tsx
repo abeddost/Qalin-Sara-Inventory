@@ -149,23 +149,23 @@ export function OrderView({ open, onClose, order }: OrderViewProps) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="text-gray-900">${order.total_amount.toFixed(2)}</span>
+                  <span className="text-gray-900">€{order.total_amount.toFixed(2)}</span>
                 </div>
                 {order.discount_amount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Discount:</span>
-                    <span className="text-red-600">-${order.discount_amount.toFixed(2)}</span>
+                    <span className="text-red-600">-€{order.discount_amount.toFixed(2)}</span>
                   </div>
                 )}
                 {order.tax_amount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax:</span>
-                    <span className="text-gray-900">${order.tax_amount.toFixed(2)}</span>
+                    <span className="text-gray-900">€{order.tax_amount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-2">
                   <span className="font-semibold text-gray-900">Total:</span>
-                  <span className="font-semibold text-gray-900">${order.final_amount.toFixed(2)}</span>
+                  <span className="font-semibold text-gray-900">€{order.final_amount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -211,10 +211,10 @@ export function OrderView({ open, onClose, order }: OrderViewProps) {
                         {item.quantity}
                       </td>
                       <td className="border border-gray-200 px-4 py-2 text-right text-sm text-gray-900">
-                        ${item.unit_price.toFixed(2)}
+                        €{item.unit_price.toFixed(2)}
                       </td>
                       <td className="border border-gray-200 px-4 py-2 text-right text-sm text-gray-900">
-                        ${item.total_price.toFixed(2)}
+                        €{item.total_price.toFixed(2)}
                       </td>
                     </tr>
                   ))}

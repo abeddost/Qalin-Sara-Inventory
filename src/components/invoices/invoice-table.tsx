@@ -501,7 +501,7 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
                     className="px-6 py-4 whitespace-nowrap text-sm"
                     style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
                   >
-                    ${invoice.total_amount.toFixed(2)}
+                    €{invoice.total_amount.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <div className="flex space-x-2">

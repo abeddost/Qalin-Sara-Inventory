@@ -84,6 +84,7 @@ export interface Database {
           status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total_amount: number
           discount_amount: number
+          tax_rate: number
           tax_amount: number
           final_amount: number
           notes: string | null
@@ -100,6 +101,7 @@ export interface Database {
           status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total_amount?: number
           discount_amount?: number
+          tax_rate?: number
           tax_amount?: number
           final_amount?: number
           notes?: string | null
@@ -116,6 +118,7 @@ export interface Database {
           status?: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
           total_amount?: number
           discount_amount?: number
+          tax_rate?: number
           tax_amount?: number
           final_amount?: number
           notes?: string | null

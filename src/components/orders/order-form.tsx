@@ -57,7 +57,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     status: 'pending' | 'confirmed' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
     notes: string
     discount_amount: number | null
-    tax_amount: number | null
+    tax_rate: number | null
   }>({
     order_number: '',
     customer_name: '',
@@ -67,10 +67,73 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
     status: 'pending',
     notes: '',
     discount_amount: null,
-    tax_amount: null
+    tax_rate: null
   })
   const [orderItems, setOrderItems] = useState<OrderItem[]>([])
+  const [isOrderNumberDirty, setIsOrderNumberDirty] = useState(false)
+  const [hasTaxRateColumn, setHasTaxRateColumn] = useState(true)
+  const [hasShownTaxRateWarning, setHasShownTaxRateWarning] = useState(false)
   const supabase = createClient()
+  const DUPLICATE_ORDER_NUMBER_CONSTRAINT = 'orders_order_number_key'
+
+  const extractErrorDetails = (error: unknown) => {
+    if (!error || typeof error !== 'object') return ''
+    const { message, details, hint } = error as { message?: unknown; details?: unknown; hint?: unknown }
+    const parts: string[] = []
+    if (typeof message === 'string' && message.trim()) {
+      parts.push(message)
+    }
+    if (typeof details === 'string' && details.trim()) {
+      parts.push(details)
+    }
+    if (typeof hint === 'string' && hint.trim()) {
+      parts.push(hint)
+    }
+    return parts.join(' ')
+  }
+
+  const isDuplicateOrderNumberError = (error: unknown) => {
+    const text = extractErrorDetails(error).toLowerCase()
+    return text.includes(DUPLICATE_ORDER_NUMBER_CONSTRAINT)
+  }
+
+  const isMissingTaxRateColumnError = (error: unknown) => {
+    const text = extractErrorDetails(error).toLowerCase()
+    if (!text.includes('tax_rate')) return false
+    return text.includes('does not exist') || text.includes('schema cache')
+  }
+
+  const getErrorMessage = (error: unknown) => {
+    if (isDuplicateOrderNumberError(error)) {
+      return 'Order number already exists. Please choose a different value.'
+    }
+    if (isMissingTaxRateColumnError(error)) {
+      return [
+        'The database is missing the orders.tax_rate column.',
+        'Please run the latest database migration or execute:',
+        `"ALTER TABLE orders ADD COLUMN tax_rate DECIMAL(5,2) DEFAULT 0;"`
+      ].join(' ')
+    }
+    if (error instanceof Error) {
+      return error.message
+    }
+    const fallback = extractErrorDetails(error)
+    return fallback || 'Failed to save order'
+  }
+
+  const handleTaxRateColumnError = (error: unknown) => {
+    if (!isMissingTaxRateColumnError(error)) return false
+    if (hasTaxRateColumn) {
+      setHasTaxRateColumn(false)
+    }
+    if (!hasShownTaxRateWarning) {
+      toast.warning(
+        'Missing orders.tax_rate column in the database. Run the latest migration or execute: ALTER TABLE orders ADD COLUMN tax_rate DECIMAL(5,2) DEFAULT 0;'
+      )
+      setHasShownTaxRateWarning(true)
+    }
+    return true
+  }
 
   // Debug: Log when orderItems changes
   useEffect(() => {
@@ -81,6 +144,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
   useEffect(() => {
     if (open) {
       fetchProducts()
+      checkTaxRateColumn()
       if (order) {
         // Editing existing order
         setFormData({
@@ -92,7 +156,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           status: order.status,
           notes: order.notes || '',
           discount_amount: order.discount_amount,
-          tax_amount: order.tax_amount
+          tax_rate: order.tax_rate
         })
         setOrderItems(order.order_items.map((item, index) => ({
           id: item.id,
@@ -104,12 +168,32 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
           unit_price: item.unit_price,
           total_price: item.total_price
         })))
+        setIsOrderNumberDirty(true)
       } else {
         // Creating new order
         resetForm()
       }
     }
   }, [open, order])
+
+  const checkTaxRateColumn = async () => {
+    try {
+      const { error } = await supabase
+        .from('orders')
+        .select('tax_rate', { head: true, count: 'exact' })
+        .limit(1)
+
+      if (error && isMissingTaxRateColumnError(error)) {
+        handleTaxRateColumnError(error)
+      } else {
+        if (!error) {
+          setHasTaxRateColumn(true)
+        }
+      }
+    } catch (schemaError) {
+      console.error('Failed to validate orders schema:', schemaError)
+    }
+  }
 
   const fetchProducts = async () => {
     try {
@@ -140,14 +224,52 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       status: 'pending',
       notes: '',
       discount_amount: null,
-      tax_amount: null
+      tax_rate: null
     })
     setOrderItems([])
+    setIsOrderNumberDirty(false)
   }
 
   const generateOrderNumber = () => {
-    const timestamp = Date.now().toString().slice(-6)
-    return `ORD-${timestamp}`
+    // Use full timestamp plus random suffix to avoid collisions with the UNIQUE constraint
+    const timestamp = Date.now().toString(36).toUpperCase()
+    const randomSuffix = Math.random().toString(36).slice(2, 6).toUpperCase()
+    return `ORD-${timestamp}-${randomSuffix}`
+  }
+
+  const insertOrderWithAutoNumber = async (payload: Record<string, any>) => {
+    const maxAttempts = isOrderNumberDirty ? 1 : 3
+    let attempt = 0
+    let currentPayload: Record<string, any> = { ...payload }
+
+    while (attempt < maxAttempts) {
+      const { data, error } = await supabase
+        .from('orders')
+        .insert(currentPayload as OrderInsert)
+        .select()
+        .single()
+
+      if (!error) {
+        return data
+      }
+
+      handleTaxRateColumnError(error)
+
+      if (!isDuplicateOrderNumberError(error)) {
+        throw error
+      }
+
+      if (isOrderNumberDirty) {
+        throw error
+      }
+
+      attempt += 1
+      const regeneratedOrderNumber = generateOrderNumber()
+      currentPayload = { ...currentPayload, order_number: regeneratedOrderNumber }
+      setFormData(prev => ({ ...prev, order_number: regeneratedOrderNumber }))
+    }
+
+    throw new Error('Unable to generate a unique order number automatically. Please try again.')
   }
 
   const addOrderItem = () => {
@@ -233,13 +355,18 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
   const calculateTotals = () => {
     const subtotal = orderItems.reduce((sum, item) => sum + item.total_price, 0)
     const discount = formData.discount_amount || 0
-    const tax = formData.tax_amount || 0
-    const total = subtotal - discount + tax
+    const total = subtotal - discount // This is the final total (tax-included)
+    const taxRate = formData.tax_rate || 0
     
-    return { subtotal, discount, tax, total }
+    // Extract tax from the tax-included total using the correct formula:
+    // Tax Amount = Total × (Tax Rate / (100 + Tax Rate))
+    const tax = taxRate > 0 ? total * (taxRate / (100 + taxRate)) : 0
+    const beforeTax = total - tax
+    
+    return { subtotal, discount, tax, beforeTax, total }
   }
 
-  const { subtotal, discount, tax, total } = calculateTotals()
+  const { subtotal, discount, tax, beforeTax, total } = calculateTotals()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -254,29 +381,44 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       return
     }
 
+    if (orderItems.some(item => !item.product_id || !item.product_size)) {
+      toast.error('Each item needs a product and size before saving')
+      return
+    }
+
     setIsLoading(true)
 
     try {
       if (order) {
         // Update existing order
+        const updatePayload: Record<string, any> = {
+          customer_name: formData.customer_name,
+          customer_email: formData.customer_email || null,
+          customer_phone: formData.customer_phone || null,
+          customer_address: formData.customer_address || null,
+          status: formData.status,
+          notes: formData.notes || null,
+          discount_amount: discount,
+          tax_rate: formData.tax_rate || 0,
+          tax_amount: tax,
+          total_amount: subtotal,
+          final_amount: total,
+          updated_at: new Date().toISOString()
+        }
+
+        if (!hasTaxRateColumn) {
+          delete updatePayload.tax_rate
+        }
+
         const { error: orderError } = await supabase
           .from('orders')
-          .update({
-            customer_name: formData.customer_name,
-            customer_email: formData.customer_email || null,
-            customer_phone: formData.customer_phone || null,
-            customer_address: formData.customer_address || null,
-            status: formData.status,
-            notes: formData.notes || null,
-            discount_amount: formData.discount_amount || 0,
-            tax_amount: formData.tax_amount || 0,
-            total_amount: subtotal,
-            final_amount: total,
-            updated_at: new Date().toISOString()
-          })
+          .update(updatePayload)
           .eq('id', order.id)
 
-        if (orderError) throw orderError
+        if (orderError) {
+          handleTaxRateColumnError(orderError)
+          throw orderError
+        }
 
         // Delete existing order items
         await supabase
@@ -304,26 +446,31 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
 
         toast.success('Order updated successfully')
       } else {
-        // Create new order
-        const { data: newOrder, error: orderError } = await supabase
-          .from('orders')
-          .insert({
-            order_number: formData.order_number,
-            customer_name: formData.customer_name,
-            customer_email: formData.customer_email || null,
-            customer_phone: formData.customer_phone || null,
-            customer_address: formData.customer_address || null,
-            status: formData.status,
-            notes: formData.notes || null,
-            discount_amount: formData.discount_amount || 0,
-            tax_amount: formData.tax_amount || 0,
-            total_amount: subtotal,
-            final_amount: total
-          })
-          .select()
-          .single()
+        const normalizedOrderNumber = formData.order_number.trim()
+        if (normalizedOrderNumber !== formData.order_number) {
+          setFormData(prev => ({ ...prev, order_number: normalizedOrderNumber }))
+        }
 
-        if (orderError) throw orderError
+        const baseOrderPayload: Record<string, any> = {
+          order_number: normalizedOrderNumber,
+          customer_name: formData.customer_name,
+          customer_email: formData.customer_email || null,
+          customer_phone: formData.customer_phone || null,
+          customer_address: formData.customer_address || null,
+          status: formData.status,
+          notes: formData.notes || null,
+          discount_amount: discount,
+          tax_rate: formData.tax_rate || 0,
+          tax_amount: tax,
+          total_amount: subtotal,
+          final_amount: total
+        }
+
+        if (!hasTaxRateColumn) {
+          delete baseOrderPayload.tax_rate
+        }
+
+        const newOrder = await insertOrderWithAutoNumber(baseOrderPayload)
 
         // Insert order items
         if (orderItems.length > 0) {
@@ -349,7 +496,8 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
       onSuccess()
       onOpenChange(false)
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to save order'
+      handleTaxRateColumnError(error)
+      const errorMessage = getErrorMessage(error)
       console.error('Error saving order:', error)
       toast.error(errorMessage)
     } finally {
@@ -402,7 +550,10 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                   <Input
                     id="order_number"
                     value={formData.order_number}
-                    onChange={(e) => setFormData({...formData, order_number: e.target.value})}
+                    onChange={(e) => {
+                      setIsOrderNumberDirty(true)
+                      setFormData({...formData, order_number: e.target.value})
+                    }}
                     required
                     className="mt-1"
                     style={{
@@ -599,10 +750,9 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                             value={item.product_size}
                             onChange={(e) => {
                               updateOrderItem(index, 'product_size', e.target.value)
-                              const price = getProductSizePrice(item.product_id, e.target.value)
-                              updateOrderItem(index, 'unit_price', price || null)
-                              // Optionally calculate area based on size (e.g., if size is "12m", area might be 12*12=144m²)
-                              // For now, user will enter area manually
+                              // Note: Do NOT auto-fill unit_price from inventory selling_price
+                              // The selling_price in inventory is per unit, not per m²
+                              // User must enter the price per m² manually for each order
                             }}
                             disabled={!item.product_id}
                             className="mt-1 w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
@@ -696,7 +846,7 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                         <div>
                           <Label className="mb-2">Total</Label>
                           <Input
-                            value={`$${item.total_price.toFixed(2)}`}
+                            value={`€${item.total_price.toFixed(2)}`}
                             readOnly
                             className="mt-1"
                             style={{
@@ -761,41 +911,51 @@ export function OrderForm({ open, onOpenChange, order, onSuccess }: OrderFormPro
                     />
                   </div>
                   <div>
-                    <Label htmlFor="tax_amount" className="mb-2">Tax Amount</Label>
+                    <Label htmlFor="tax_rate" className="mb-2">Tax Rate (%)</Label>
                     <Input
-                      id="tax_amount"
+                      id="tax_rate"
                       type="number"
                       min="0"
                       step="0.01"
-                      value={formData.tax_amount === null ? '' : formData.tax_amount}
+                      value={formData.tax_rate === null ? '' : formData.tax_rate}
                       placeholder="0"
-                      onChange={(e) => setFormData({...formData, tax_amount: e.target.value === '' ? null : parseFloat(e.target.value) || 0})}
+                      onChange={(e) => setFormData({...formData, tax_rate: e.target.value === '' ? null : parseFloat(e.target.value) || 0})}
                       className="mt-1"
+                      disabled={!hasTaxRateColumn}
                       style={{
                         backgroundColor: theme === 'dark' ? '#374151' : '#ffffff',
                         color: theme === 'dark' ? '#f9fafb' : '#111827',
                         borderColor: theme === 'dark' ? '#4b5563' : '#d1d5db'
                       }}
                     />
+                    {!hasTaxRateColumn && (
+                      <p className="text-xs text-amber-600 mt-1">
+                        This value will not be saved until the orders.tax_rate column exists in your database.
+                      </p>
+                    )}
                   </div>
                 </div>
                 
                 <div className="border-t pt-4">
                   <div className="flex justify-between items-center py-2">
                     <span className="font-medium">Subtotal:</span>
-                    <span className="font-medium">${subtotal.toFixed(2)}</span>
+                    <span className="font-medium">€{subtotal.toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between items-center py-2">
                     <span>Discount:</span>
-                    <span>-${discount.toFixed(2)}</span>
+                    <span>-€{discount.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-center py-2">
-                    <span>Tax:</span>
-                    <span>${tax.toFixed(2)}</span>
+                  <div className="flex justify-between items-center py-2 border-t pt-2">
+                    <span className="font-medium">Total:</span>
+                    <span className="font-medium">€{total.toFixed(2)}</span>
                   </div>
-                  <div className="flex justify-between items-center py-2 text-lg font-bold border-t pt-2">
-                    <span>Total:</span>
-                    <span>${total.toFixed(2)}</span>
+                  <div className="flex justify-between items-center py-2 text-sm text-muted-foreground">
+                    <span>Before Tax:</span>
+                    <span>€{beforeTax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex justify-between items-center py-2 text-sm text-muted-foreground">
+                    <span>Tax ({formData.tax_rate || 0}%):</span>
+                    <span>€{tax.toFixed(2)}</span>
                   </div>
                 </div>
                 

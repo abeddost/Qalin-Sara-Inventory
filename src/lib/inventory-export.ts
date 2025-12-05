@@ -186,7 +186,7 @@ export function parseCSVImport(fileContent: string): ExportableProduct[] {
   }
 
   // Parse header
-  const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"$/g, '').trim())
+  const headers = parseCSVLine(lines[0]).map(h => h.replace(/^"|"€/g, '').trim())
   const expectedHeaders = ['Product Code', 'Photo URL', 'Size', 'Count', 'Purchase Price', 'Selling Price']
   
   const headerIndices = expectedHeaders.map(expectedHeader => {
@@ -204,7 +204,7 @@ export function parseCSVImport(fileContent: string): ExportableProduct[] {
     const line = lines[i]
     if (!line.trim()) continue // Skip empty lines
     
-    const values = parseCSVLine(line).map(v => v.replace(/^"|"$/g, '').trim())
+    const values = parseCSVLine(line).map(v => v.replace(/^"|"€/g, '').trim())
     
     if (values.length < headerIndices.length) {
       continue // Skip malformed rows

@@ -262,10 +262,10 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
                           <div className="space-y-1">
                             <div className="text-sm font-medium">{sizeData.count}</div>
                             <div className="text-xs text-muted-foreground">
-                              ${sizeData.purchase_price.toFixed(2)}
+                              €{sizeData.purchase_price.toFixed(2)}
                             </div>
                             <div className="text-xs text-muted-foreground">
-                              ${sizeData.selling_price.toFixed(2)}
+                              €{sizeData.selling_price.toFixed(2)}
                             </div>
                           </div>
                         ) : (
@@ -285,7 +285,7 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
                   {/* Total Value */}
                   <TableCell className="text-center">
                     <div className="text-sm font-medium">
-                      ${calculateTotalValue(product).toFixed(2)}
+                      €{calculateTotalValue(product).toFixed(2)}
                     </div>
                   </TableCell>
 
@@ -325,13 +325,13 @@ export function ProductTable({ products, onRefresh }: ProductTableProps) {
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-primary">
-              ${totalPurchaseValue.toFixed(2)}
+              €{totalPurchaseValue.toFixed(2)}
             </div>
             <div className="text-sm text-muted-foreground">Purchase Value</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-primary">
-              ${totalSellingValue.toFixed(2)}
+              €{totalSellingValue.toFixed(2)}
             </div>
             <div className="text-sm text-muted-foreground">Selling Value</div>
           </div>

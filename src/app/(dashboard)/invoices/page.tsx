@@ -144,7 +144,7 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-3xl font-bold text-gray-900">${totalAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
             </div>
@@ -156,7 +156,7 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Paid Amount</p>
-                <p className="text-3xl font-bold text-gray-900">${paidAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{paidAmount.toLocaleString()}</p>
               </div>
               <TrendingUp className="h-8 w-8 text-green-600" />
             </div>
@@ -168,7 +168,7 @@ export default function InvoicesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Amount</p>
-                <p className="text-3xl font-bold text-gray-900">${pendingAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{pendingAmount.toLocaleString()}</p>
               </div>
               <Calendar className="h-8 w-8 text-yellow-600" />
             </div>

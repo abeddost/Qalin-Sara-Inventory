@@ -187,24 +187,24 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
         invoice.invoice_items.forEach(item => {
           pdf.text(item.description || 'Item', 20, yPosition)
           pdf.text(item.quantity.toString(), 100, yPosition)
-          pdf.text(`$${item.unit_price.toFixed(2)}`, 130, yPosition)
-          pdf.text(`$${item.total_price.toFixed(2)}`, 160, yPosition)
+          pdf.text(`€${item.unit_price.toFixed(2)}`, 130, yPosition)
+          pdf.text(`€${item.total_price.toFixed(2)}`, 160, yPosition)
           yPosition += 10
         })
         
         // Totals
         yPosition += 10
-        pdf.text(`Subtotal: $${invoice.total_amount.toFixed(2)}`, 130, yPosition)
+        pdf.text(`Subtotal: €${invoice.total_amount.toFixed(2)}`, 130, yPosition)
         if (invoice.tax_amount) {
           yPosition += 10
-          pdf.text(`Tax: $${invoice.tax_amount.toFixed(2)}`, 130, yPosition)
+          pdf.text(`Tax: €${invoice.tax_amount.toFixed(2)}`, 130, yPosition)
         }
         if (invoice.discount_amount) {
           yPosition += 10
-          pdf.text(`Discount: -$${invoice.discount_amount.toFixed(2)}`, 130, yPosition)
+          pdf.text(`Discount: -€${invoice.discount_amount.toFixed(2)}`, 130, yPosition)
         }
         yPosition += 10
-        pdf.text(`Total: $${invoice.total_amount.toFixed(2)}`, 130, yPosition)
+        pdf.text(`Total: €${invoice.total_amount.toFixed(2)}`, 130, yPosition)
         
         pdf.save(`invoice-${invoice.invoice_number}.pdf`)
         toast.success('PDF generated successfully (fallback method)')
@@ -330,23 +330,23 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Subtotal:</span>
-                  <span className="font-medium">${invoice.subtotal.toFixed(2)}</span>
+                <span className="font-medium">€{invoice.subtotal.toFixed(2)}</span>
                 </div>
                 {invoice.discount_amount > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Discount:</span>
-                    <span className="font-medium">-${invoice.discount_amount.toFixed(2)}</span>
+                    <span className="font-medium">-€{invoice.discount_amount.toFixed(2)}</span>
                   </div>
                 )}
                 {invoice.tax_rate > 0 && (
                   <div className="flex justify-between">
                     <span className="text-gray-600">Tax ({invoice.tax_rate}%):</span>
-                    <span className="font-medium">${invoice.tax_amount.toFixed(2)}</span>
+                    <span className="font-medium">€{invoice.tax_amount.toFixed(2)}</span>
                   </div>
                 )}
                 <div className="flex justify-between border-t pt-2">
                   <span className="font-semibold text-gray-900">Total:</span>
-                  <span className="font-bold text-lg">${invoice.total_amount.toFixed(2)}</span>
+                  <span className="font-bold text-lg">€{invoice.total_amount.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -394,10 +394,10 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
                         {item.quantity}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${item.unit_price.toFixed(2)}
+                        €{item.unit_price.toFixed(2)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                        ${item.total_price.toFixed(2)}
+                        €{item.total_price.toFixed(2)}
                       </td>
                     </tr>
                   ))}
@@ -428,7 +428,7 @@ export default function InvoiceView({ open, onClose, invoice }: InvoiceViewProps
                   </div>
                   <div>
                     <p className="text-sm text-gray-600">Order Total:</p>
-                    <p className="font-medium">${orderData.final_amount.toFixed(2)}</p>
+                    <p className="font-medium">€{orderData.final_amount.toFixed(2)}</p>
                   </div>
                 </div>
               </div>

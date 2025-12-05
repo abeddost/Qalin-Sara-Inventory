@@ -492,7 +492,7 @@ export default function OrdersPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600">Total Value</p>
-                  <p className="text-3xl font-bold text-gray-900">${totalValue.toLocaleString()}</p>
+                  <p className="text-3xl font-bold text-gray-900">€{totalValue.toLocaleString()}</p>
                 </div>
                 <DollarSign className="h-8 w-8 text-green-600" />
               </div>
@@ -729,11 +729,11 @@ export default function OrdersPage() {
                   
                   <TableCell>
                     <div className="text-sm font-semibold text-gray-900">
-                      ${order.final_amount.toFixed(2)}
+                      €{order.final_amount.toFixed(2)}
                     </div>
                     {order.discount_amount > 0 && (
                       <div className="text-xs text-green-600">
-                        -${order.discount_amount.toFixed(2)} discount
+                        -€{order.discount_amount.toFixed(2)} discount
                       </div>
                     )}
                   </TableCell>

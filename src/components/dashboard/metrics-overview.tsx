@@ -53,7 +53,7 @@ export function MetricsOverview({ products, totalOrders = 0, totalInvoices = 0, 
     },
     {
       title: 'Total Value',
-      value: `$${totalSellingValue.toLocaleString()}`,
+      value: `€${totalSellingValue.toLocaleString()}`,
       icon: FileText,
       iconColor: 'text-orange-600',
       iconBg: 'bg-orange-100',

@@ -242,11 +242,14 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
   const calculateTotals = () => {
     const subtotal = invoiceItems.reduce((sum, item) => sum + item.total_price, 0)
     const discountAmount = formData.discount_amount || 0
-    const taxableAmount = subtotal - discountAmount
-    const taxAmount = (taxableAmount * (formData.tax_rate || 0)) / 100
-    const totalAmount = taxableAmount + taxAmount
+    const totalAmount = subtotal - discountAmount // This is the tax-included total
+    const taxRate = formData.tax_rate || 0
+    // Extract tax from the tax-included total using the correct formula:
+    // Tax Amount = Total × (Tax Rate / (100 + Tax Rate))
+    const taxAmount = taxRate > 0 ? totalAmount * (taxRate / (100 + taxRate)) : 0
+    const beforeTaxAmount = totalAmount - taxAmount
     
-    return { subtotal, discountAmount, taxAmount, totalAmount }
+    return { subtotal, discountAmount, taxAmount, totalAmount, beforeTaxAmount }
   }
 
   const handleOrderChange = async (orderId: string) => {
@@ -259,7 +262,10 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
           customer_name: selectedOrder.customer_name,
           customer_email: selectedOrder.customer_email || '',
           customer_phone: selectedOrder.customer_phone || '',
-          customer_address: selectedOrder.customer_address || ''
+          customer_address: selectedOrder.customer_address || '',
+          discount_amount: selectedOrder.discount_amount || null,
+          tax_rate: selectedOrder.tax_rate || null,
+          notes: selectedOrder.notes || ''
         }))
         
         // Fetch order items and convert them to invoice items
@@ -429,7 +435,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
     }
   }
 
-  const { subtotal, discountAmount, taxAmount, totalAmount } = calculateTotals()
+  const { subtotal, discountAmount, taxAmount, totalAmount, beforeTaxAmount } = calculateTotals()
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -712,7 +718,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                       <option value="">Select size</option>
                       {getProductSizes(item.product_id).map(size => (
                         <option key={size.size} value={size.size}>
-                          {size.size} (${size.selling_price})
+                          {size.size} (€{size.selling_price})
                         </option>
                       ))}
                     </select>
@@ -752,7 +758,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
                   <div className="md:col-span-2">
                     <Label className="mb-2">Total</Label>
                     <Input
-                      value={`$${item.total_price.toFixed(2)}`}
+                      value={`€${item.total_price.toFixed(2)}`}
                       readOnly
                       className="w-full"
                       style={{
@@ -798,19 +804,23 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
             <div className="max-w-md ml-auto space-y-2">
               <div className="flex justify-between">
                 <span>Subtotal:</span>
-                <span>${subtotal.toFixed(2)}</span>
+                <span>€{subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Discount:</span>
-                <span>-${discountAmount.toFixed(2)}</span>
+                <span>-€{discountAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Tax ({formData.tax_rate || 0}%):</span>
-                <span>${taxAmount.toFixed(2)}</span>
+                <span>€{taxAmount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between text-sm text-muted-foreground">
+                <span>Before Tax:</span>
+                <span>€{beforeTaxAmount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between font-bold text-lg border-t pt-2">
                 <span>Total:</span>
-                <span>${totalAmount.toFixed(2)}</span>
+                <span>€{totalAmount.toFixed(2)}</span>
               </div>
             </div>
 

@@ -196,7 +196,7 @@ export default function AnalyticsPage() {
     },
     {
       title: 'Total Value',
-      value: `$${analyticsData.totalValue.toLocaleString()}`,
+      value: `€${analyticsData.totalValue.toLocaleString()}`,
       icon: DollarSign,
       iconColor: 'text-purple-600',
       iconBg: 'bg-purple-100',
@@ -204,7 +204,7 @@ export default function AnalyticsPage() {
     },
     {
       title: 'Average Price',
-      value: `$${analyticsData.averagePrice.toFixed(2)}`,
+      value: `€${analyticsData.averagePrice.toFixed(2)}`,
       icon: Target,
       iconColor: 'text-orange-600',
       iconBg: 'bg-orange-100',
@@ -359,19 +359,19 @@ export default function AnalyticsPage() {
                 <div className="text-center">
                   <p className="text-sm text-gray-600">Min Price</p>
                   <p className="text-2xl font-bold text-green-600">
-                    ${analyticsData.priceRange.min.toFixed(2)}
+                    €{analyticsData.priceRange.min.toFixed(2)}
                   </p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-600">Average</p>
                   <p className="text-2xl font-bold text-blue-600">
-                    ${analyticsData.priceRange.avg.toFixed(2)}
+                    €{analyticsData.priceRange.avg.toFixed(2)}
                   </p>
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-600">Max Price</p>
                   <p className="text-2xl font-bold text-purple-600">
-                    ${analyticsData.priceRange.max.toFixed(2)}
+                    €{analyticsData.priceRange.max.toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -381,15 +381,15 @@ export default function AnalyticsPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Low Range</span>
-                    <span className="font-medium">${analyticsData.priceRange.min.toFixed(2)} - ${(analyticsData.priceRange.avg * 0.7).toFixed(2)}</span>
+                    <span className="font-medium">€{analyticsData.priceRange.min.toFixed(2)} - €{(analyticsData.priceRange.avg * 0.7).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">Mid Range</span>
-                    <span className="font-medium">${(analyticsData.priceRange.avg * 0.7).toFixed(2)} - ${(analyticsData.priceRange.avg * 1.3).toFixed(2)}</span>
+                    <span className="font-medium">€{(analyticsData.priceRange.avg * 0.7).toFixed(2)} - €{(analyticsData.priceRange.avg * 1.3).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-600">High Range</span>
-                    <span className="font-medium">${(analyticsData.priceRange.avg * 1.3).toFixed(2)} - ${analyticsData.priceRange.max.toFixed(2)}</span>
+                    <span className="font-medium">€{(analyticsData.priceRange.avg * 1.3).toFixed(2)} - €{analyticsData.priceRange.max.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

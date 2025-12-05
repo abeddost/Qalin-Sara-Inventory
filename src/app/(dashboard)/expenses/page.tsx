@@ -148,7 +148,7 @@ export default function ExpensesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-3xl font-bold text-gray-900">${totalAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
               </div>
               <DollarSign className="h-8 w-8 text-red-600" />
             </div>
@@ -160,7 +160,7 @@ export default function ExpensesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">${monthlyAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{monthlyAmount.toLocaleString()}</p>
               </div>
               <Calendar className="h-8 w-8 text-green-600" />
             </div>
@@ -172,7 +172,7 @@ export default function ExpensesPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending</p>
-                <p className="text-3xl font-bold text-gray-900">${pendingAmount.toLocaleString()}</p>
+                <p className="text-3xl font-bold text-gray-900">€{pendingAmount.toLocaleString()}</p>
               </div>
               <TrendingDown className="h-8 w-8 text-yellow-600" />
             </div>
@@ -203,7 +203,7 @@ export default function ExpensesPage() {
                 .map(([category, amount]) => (
                   <div key={category} className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">{category}</span>
-                    <span className="text-sm font-medium text-gray-900">${amount.toFixed(2)}</span>
+                    <span className="text-sm font-medium text-gray-900">€{amount.toFixed(2)}</span>
                   </div>
                 ))}
             </div>

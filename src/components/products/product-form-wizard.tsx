@@ -268,7 +268,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
             .select('code')
             .order('code')
           
-          const numericCodes = allCodes?.map(p => p.code).filter(code => /^\d+$/.test(code)) || []
+          const numericCodes = allCodes?.map(p => p.code).filter(code => /^\d+€/.test(code)) || []
           const nextNumeric = numericCodes.length > 0 ? Math.max(...numericCodes.map(Number)) + 1 : 1
           
           toast.error(`Product code "${data.code}" already exists. Try using "${nextNumeric}" or "${data.code}-1"`)
@@ -708,7 +708,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
                     <div key={entry.id} className="flex justify-between items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <Badge variant="secondary" className="bg-blue-100 text-blue-800">{entry.size}</Badge>
                       <div className="text-sm text-gray-700 font-medium">
-                        Count: {entry.count || 0} | Purchase: ${entry.purchase_price || 0} | Selling: ${entry.selling_price || 0}
+                        Count: {entry.count || 0} | Purchase: €{entry.purchase_price || 0} | Selling: €{entry.selling_price || 0}
                       </div>
                     </div>
                   ))}
