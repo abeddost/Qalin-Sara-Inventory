@@ -1,10 +1,11 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { UserMenu } from './user-menu'
-import { Bell, Settings, Plus, AlertCircle, Package, DollarSign, User as UserIcon, Shield, Palette } from 'lucide-react'
+import { Bell, Settings, Plus, AlertCircle, Package, DollarSign, FileText, User as UserIcon, Shield, Palette } from 'lucide-react'
+import { createClient } from '@/lib/supabase/client'
 import type { User } from '@supabase/supabase-js'
 
 interface HeaderProps {
@@ -12,12 +13,154 @@ interface HeaderProps {
   user: User
 }
 
+interface Notification {
+  id: string
+  type: 'low_stock' | 'order' | 'invoice' | 'alert'
+  title: string
+  message: string
+  time: string
+  icon: any
+  unread: boolean
+  link?: string
+}
+
+// Helper function to format relative time
+function getRelativeTime(date: Date): string {
+  const now = new Date()
+  const diffMs = now.getTime() - date.getTime()
+  const diffMins = Math.floor(diffMs / 60000)
+  const diffHours = Math.floor(diffMs / 3600000)
+  const diffDays = Math.floor(diffMs / 86400000)
+
+  if (diffMins < 1) return 'Just now'
+  if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
+  if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
+  if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
+  return date.toLocaleDateString()
+}
+
 export function Header({ onAddProduct, user }: HeaderProps) {
   const router = useRouter()
   const [showNotifications, setShowNotifications] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [notifications, setNotifications] = useState<Notification[]>([])
+  const [readNotifications, setReadNotifications] = useState<Set<string>>(new Set())
   const notificationsRef = useRef<HTMLDivElement>(null)
   const settingsRef = useRef<HTMLDivElement>(null)
+  const supabase = createClient()
+
+  // Load read notifications from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('readNotifications')
+    if (stored) {
+      try {
+        setReadNotifications(new Set(JSON.parse(stored)))
+      } catch (e) {
+        console.error('Error parsing read notifications:', e)
+      }
+    }
+  }, [])
+
+  // Fetch real notifications from database
+  const fetchNotifications = useCallback(async () => {
+    try {
+      const notificationsList: Notification[] = []
+
+      // 1. Fetch low stock products (total count < 5)
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, code, product_sizes(count)')
+
+      if (products) {
+        products.forEach((product: any) => {
+          const totalStock = product.product_sizes?.reduce((sum: number, size: any) => sum + (size.count || 0), 0) || 0
+          if (totalStock > 0 && totalStock < 5) {
+            notificationsList.push({
+              id: `low_stock_${product.id}`,
+              type: 'low_stock',
+              title: 'Low Stock Alert',
+              message: `Product ${product.code} has only ${totalStock} unit${totalStock > 1 ? 's' : ''} remaining`,
+              time: 'Now',
+              icon: Package,
+              unread: !readNotifications.has(`low_stock_${product.id}`),
+              link: '/products'
+            })
+          }
+        })
+      }
+
+      // 2. Fetch recent orders (last 7 days)
+      const sevenDaysAgo = new Date()
+      sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7)
+      
+      const { data: orders } = await supabase
+        .from('orders')
+        .select('id, order_number, customer_name, final_amount, created_at')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (orders) {
+        orders.forEach((order: any) => {
+          notificationsList.push({
+            id: `order_${order.id}`,
+            type: 'order',
+            title: 'New Order',
+            message: `Order ${order.order_number} from ${order.customer_name} - €${order.final_amount?.toFixed(2) || '0.00'}`,
+            time: getRelativeTime(new Date(order.created_at)),
+            icon: DollarSign,
+            unread: !readNotifications.has(`order_${order.id}`),
+            link: '/orders'
+          })
+        })
+      }
+
+      // 3. Fetch recent invoices (last 7 days)
+      const { data: invoices } = await supabase
+        .from('invoices')
+        .select('id, invoice_number, customer_name, total_amount, created_at')
+        .gte('created_at', sevenDaysAgo.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(5)
+
+      if (invoices) {
+        invoices.forEach((invoice: any) => {
+          notificationsList.push({
+            id: `invoice_${invoice.id}`,
+            type: 'invoice',
+            title: 'New Invoice',
+            message: `Invoice ${invoice.invoice_number} for ${invoice.customer_name} - €${invoice.total_amount?.toFixed(2) || '0.00'}`,
+            time: getRelativeTime(new Date(invoice.created_at)),
+            icon: FileText,
+            unread: !readNotifications.has(`invoice_${invoice.id}`),
+            link: '/invoices'
+          })
+        })
+      }
+
+      // Sort by unread first, then by most recent
+      notificationsList.sort((a, b) => {
+        if (a.unread && !b.unread) return -1
+        if (!a.unread && b.unread) return 1
+        return 0
+      })
+
+      setNotifications(notificationsList)
+    } catch (error) {
+      console.error('Error fetching notifications:', error)
+    }
+  }, [supabase, readNotifications])
+
+  // Fetch notifications on mount and when dropdown opens
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
+
+  useEffect(() => {
+    if (showNotifications) {
+      fetchNotifications()
+    }
+  }, [showNotifications, fetchNotifications])
 
   // Close dropdowns when clicking outside
   useEffect(() => {
@@ -39,44 +182,35 @@ export function Header({ onAddProduct, user }: HeaderProps) {
     }
   }, [showNotifications, showSettings])
 
-  // Sample notifications data - in a real app, this would come from an API
-  const notifications = [
-    {
-      id: 1,
-      type: 'low_stock',
-      title: 'Low Stock Alert',
-      message: 'Persian Carpet 3x5 has only 2 units remaining',
-      time: '2 hours ago',
-      icon: Package,
-      unread: true
-    },
-    {
-      id: 2,
-      type: 'sale',
-      title: 'New Sale',
-      message: 'Sale completed: $450 for Turkish Rug 4x6',
-      time: '4 hours ago',
-      icon: DollarSign,
-      unread: true
-    },
-    {
-      id: 3,
-      type: 'alert',
-      title: 'System Alert',
-      message: 'Database backup completed successfully',
-      time: '1 day ago',
-      icon: AlertCircle,
-      unread: false
-    }
-  ]
-
   const unreadCount = notifications.filter(n => n.unread).length
 
-  const handleNotificationClick = (notification: any) => {
-    // Handle notification click - could navigate to relevant page
-    console.log('Notification clicked:', notification)
+  const handleNotificationClick = (notification: Notification) => {
     // Mark as read
-    // In a real app, you'd update this in the database
+    const newReadNotifications = new Set(readNotifications)
+    newReadNotifications.add(notification.id)
+    setReadNotifications(newReadNotifications)
+    localStorage.setItem('readNotifications', JSON.stringify([...newReadNotifications]))
+    
+    // Update notification state
+    setNotifications(prev => 
+      prev.map(n => n.id === notification.id ? { ...n, unread: false } : n)
+    )
+    
+    // Navigate to relevant page
+    if (notification.link) {
+      router.push(notification.link)
+      setShowNotifications(false)
+    }
+  }
+
+  const handleMarkAllAsRead = () => {
+    const newReadNotifications = new Set(readNotifications)
+    notifications.forEach(n => newReadNotifications.add(n.id))
+    setReadNotifications(newReadNotifications)
+    localStorage.setItem('readNotifications', JSON.stringify([...newReadNotifications]))
+    
+    setNotifications(prev => prev.map(n => ({ ...n, unread: false })))
+    setShowNotifications(false)
   }
 
   const handleSettingsClick = () => {
@@ -134,8 +268,9 @@ export function Header({ onAddProduct, user }: HeaderProps) {
                         <div className="flex items-start space-x-3">
                           <div className={`p-2 rounded-full ${
                             notification.type === 'low_stock' ? 'bg-orange-100 text-orange-600' :
-                            notification.type === 'sale' ? 'bg-green-100 text-green-600' :
-                            'bg-blue-100 text-blue-600'
+                            notification.type === 'order' ? 'bg-green-100 text-green-600' :
+                            notification.type === 'invoice' ? 'bg-blue-100 text-blue-600' :
+                            'bg-gray-100 text-gray-600'
                           }`}>
                             <notification.icon className="h-4 w-4" />
                           </div>
@@ -165,13 +300,13 @@ export function Header({ onAddProduct, user }: HeaderProps) {
                     </div>
                   )}
                 </div>
-                {notifications.length > 0 && (
+                {notifications.length > 0 && unreadCount > 0 && (
                   <div className="p-4 border-t border-gray-200">
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="w-full"
-                      onClick={() => setShowNotifications(false)}
+                      onClick={handleMarkAllAsRead}
                     >
                       Mark all as read
                     </Button>

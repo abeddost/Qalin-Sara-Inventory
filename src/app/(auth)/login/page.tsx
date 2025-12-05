@@ -125,14 +125,6 @@ export default function LoginPage() {
             </Button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-muted-foreground">
-            <p>
-              Need an account?{' '}
-              <Link href="/register" className="text-qalin-red hover:underline">
-                Create one here
-              </Link>
-            </p>
-          </div>
         </CardContent>
       </Card>
     </div>
