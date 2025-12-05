@@ -80,22 +80,27 @@ This project demonstrates proficiency in:
 
 ## 🖼️ Screenshots
 
-<details>
-<summary>Click to view screenshots</summary>
+<div align="center">
 
-### Dashboard
-The main dashboard showing inventory metrics and quick actions.
+### Dashboard & Overview
+![Dashboard](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/1.png)
 
 ### Product Management
-Product table with size variants and pricing information.
+![Product Management](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/2.png)
 
-### Order Creation
-Order form with automatic calculations and customer management.
+### Order Management
+![Order Management](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/3.png)
 
-### Invoice Generation
-Invoice creation with PDF export capability.
+### Invoice System
+![Invoice System](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/4.png)
 
-</details>
+### Analytics Dashboard
+![Analytics](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/5.png)
+
+### Expense Tracking
+![Expenses](https://raw.githubusercontent.com/abeddost/Qalin-Sara-Inventory/main/public/6.png)
+
+</div>
 
 ---
 
