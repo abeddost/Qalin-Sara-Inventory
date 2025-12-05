@@ -141,7 +141,7 @@ Invoice creation with PDF export capability.
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/qalin-sara-inventory.git
+   git clone https://github.com/abeddost/qalin-sara-inventory.git
    cd qalin-sara-inventory
    ```
 
@@ -328,6 +328,7 @@ NEXT_PUBLIC_APP_URL=https://your-domain.com
 
 | Document | Description |
 |----------|-------------|
+| [Project Summary](./PROJECT_SUMMARY.md) | One-page overview for collaborators & partners |
 | [Database Setup](./docs/DATABASE_SETUP.md) | Complete database setup guide |
 | [Deployment Guide](./docs/DEPLOYMENT.md) | Production deployment instructions |
 | [API Reference](./docs/API.md) | Database schema and API documentation |
@@ -357,10 +358,10 @@ This project is licensed under the MIT License - see the [LICENSE](./LICENSE) fi
 
 ## 👤 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+**Abdul Qader Dost**
+- Email: abdulqaderdost@yahoo.com
+- GitHub: [@abeddost](https://github.com/abeddost)
+- LinkedIn: [Abdul Qader Dost](https://www.linkedin.com/in/abdulqaderdost/)
 
 ---
 
