@@ -1,172 +1,382 @@
-# Qalin Sara Carpet Inventory Management System
+# 🏪 Qalin Sara - Inventory Management System
 
-A modern, full-stack carpet inventory management system built with Next.js 14, Supabase, and shadcn/ui.
+<div align="center">
 
-## 🚀 Features
+![Next.js](https://img.shields.io/badge/Next.js-15.5-black?style=for-the-badge&logo=next.js)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)
+![Supabase](https://img.shields.io/badge/Supabase-Backend-green?style=for-the-badge&logo=supabase)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css)
 
-- **Modern UI**: Clean, responsive design with Qalin Sara branding
-- **Authentication**: Secure login with Supabase Auth
-- **Product Management**: Add, edit, delete carpet products
-- **Photo Upload**: Store product images in Supabase Storage
-- **Size Variants**: Manage 6 different carpet sizes (12m, 9m, 6m, 4m, 3m, 2m)
-- **Inventory Tracking**: Track counts, purchase prices, and selling prices
-- **Real-time Search**: Find products by code
-- **MCP Integration**: Model Context Protocol for Supabase
+**A modern, full-stack inventory management system for carpet retailers**
+
+[Features](#-features) • [Demo](#-demo) • [Installation](#-installation) • [Documentation](#-documentation) • [Tech Stack](#-tech-stack)
+
+</div>
+
+---
+
+## 📋 Overview
+
+Qalin Sara is a comprehensive inventory management solution designed specifically for carpet retailers. Built with modern web technologies, it provides a seamless experience for managing products, orders, invoices, and expenses with real-time updates and beautiful UI.
+
+### Why This Project?
+
+This project demonstrates proficiency in:
+- **Full-Stack Development**: Next.js 15 with App Router, Server Components, and API routes
+- **Database Design**: PostgreSQL with Supabase, including migrations and RLS policies
+- **Modern UI/UX**: Responsive design with Tailwind CSS and shadcn/ui components
+- **Authentication & Security**: Row-level security, protected routes, session management
+- **State Management**: React hooks, context providers, and real-time updates
+- **Type Safety**: End-to-end TypeScript with generated database types
+- **Internationalization**: Multi-language support (8 languages)
+
+---
+
+## ✨ Features
+
+### 📦 Product Management
+- Add, edit, and delete carpet products with photo uploads
+- Manage 6 different size variants (12m, 9m, 6m, 4m, 3m, 2m)
+- Track inventory counts, purchase prices, and selling prices
+- Real-time search and sorting capabilities
+- Bulk import/export (JSON and CSV formats)
+
+### 📋 Order Management
+- Create and manage customer orders
+- Automatic price calculation with tax support
+- Order status tracking (pending, confirmed, processing, shipped, delivered, cancelled)
+- Link orders to invoices
+
+### 🧾 Invoice System
+- Generate invoices from orders or create standalone
+- PDF export functionality
+- Multiple status tracking (draft, sent, paid, overdue, cancelled)
+- Automatic tax calculation (VAT-inclusive pricing)
+
+### 💰 Expense Tracking
+- Categorize business expenses
+- Receipt upload and storage
+- Payment method tracking
+- Expense reporting and analytics
+
+### 📊 Analytics Dashboard
+- Real-time inventory metrics
+- Stock value calculations
+- Price range analysis
+- Low stock alerts
+
+### 🔔 Notification System
+- Real-time notifications for low stock alerts
+- Order and invoice notifications
+- Persistent read/unread tracking
+
+### 🎨 User Experience
+- **Theme Support**: Light and dark mode
+- **Multi-language**: English, German, French, Spanish, Turkish, Arabic, Persian, Pashto
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Accessibility**: Keyboard navigation and screen reader support
+
+---
+
+## 🖼️ Screenshots
+
+<details>
+<summary>Click to view screenshots</summary>
+
+### Dashboard
+The main dashboard showing inventory metrics and quick actions.
+
+### Product Management
+Product table with size variants and pricing information.
+
+### Order Creation
+Order form with automatic calculations and customer management.
+
+### Invoice Generation
+Invoice creation with PDF export capability.
+
+</details>
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), React, TypeScript
-- **Styling**: Tailwind CSS, shadcn/ui components
-- **Backend**: Supabase (Database, Auth, Storage)
-- **Integration**: MCP (Model Context Protocol)
-- **Animations**: Framer Motion
-- **Forms**: React Hook Form + Zod validation
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| [Next.js 15](https://nextjs.org/) | React framework with App Router |
+| [TypeScript](https://www.typescriptlang.org/) | Type-safe JavaScript |
+| [Tailwind CSS](https://tailwindcss.com/) | Utility-first CSS framework |
+| [shadcn/ui](https://ui.shadcn.com/) | Accessible UI components |
+| [Lucide Icons](https://lucide.dev/) | Beautiful icon library |
+| [Framer Motion](https://www.framer.com/motion/) | Animations and transitions |
 
-## 📋 Prerequisites
+### Backend & Database
+| Technology | Purpose |
+|------------|---------|
+| [Supabase](https://supabase.com/) | Backend-as-a-Service |
+| [PostgreSQL](https://www.postgresql.org/) | Relational database |
+| [Supabase Auth](https://supabase.com/auth) | Authentication |
+| [Supabase Storage](https://supabase.com/storage) | File storage |
 
-- Node.js 18+ 
-- npm or yarn
-- Supabase account and project
+### Development Tools
+| Technology | Purpose |
+|------------|---------|
+| [React Hook Form](https://react-hook-form.com/) | Form handling |
+| [Zod](https://zod.dev/) | Schema validation |
+| [ESLint](https://eslint.org/) | Code linting |
+| [jsPDF](https://github.com/parallax/jsPDF) | PDF generation |
 
-## 🚀 Quick Start
+---
 
-### 1. Clone and Install
+## 🚀 Installation
 
-```bash
-git clone <your-repo-url>
-cd qalin-sara-inventory
-npm install
-```
+### Prerequisites
 
-### 2. Set up Supabase
+- Node.js 18.0 or higher
+- npm, yarn, or pnpm
+- Supabase account ([sign up free](https://supabase.com))
 
-1. Create a new project at [supabase.com](https://supabase.com)
-2. Go to **Settings → API** to get your credentials
-3. Copy `env-template.txt` to `.env.local` and fill in your Supabase details:
+### Quick Start
 
-```bash
-cp env-template.txt .env.local
-```
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/qalin-sara-inventory.git
+   cd qalin-sara-inventory
+   ```
 
-Fill in your `.env.local`:
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-### 3. Set up Database
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Fill in your Supabase credentials:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   NEXT_PUBLIC_APP_URL=http://localhost:3000
+   ```
 
-1. Go to your Supabase project dashboard
-2. Navigate to **SQL Editor**
-3. Run the migration files in order:
+4. **Set up the database**
+   
+   Run the migration files in your Supabase SQL Editor in order:
+   ```
+   supabase/migrations/20240101000001_create_products.sql
+   supabase/migrations/20240101000002_create_product_sizes.sql
+   supabase/migrations/20240101000003_create_storage_bucket.sql
+   supabase/migrations/20240101000004_create_orders.sql
+   supabase/migrations/20240101000005_create_invoices.sql
+   supabase/migrations/20240101000006_create_expenses.sql
+   supabase/migrations/20240101000007_create_receipts_storage.sql
+   supabase/migrations/20240101000008_add_tax_rate_to_orders.sql
+   ```
 
-```sql
--- Run each file in supabase/migrations/ in order:
--- 1. 20240101000001_create_products.sql
--- 2. 20240101000002_create_product_sizes.sql  
--- 3. 20240101000003_create_storage_bucket.sql
-```
+5. **Create your first user**
+   
+   In Supabase Dashboard → Authentication → Users → Add User
 
-### 4. Start Development Server
+6. **Start the development server**
+   ```bash
+   npm run dev
+   ```
 
-```bash
-npm run dev
-```
+7. **Open the application**
+   
+   Visit [http://localhost:3000](http://localhost:3000)
 
-Visit [http://localhost:3000](http://localhost:3000) - you'll be redirected to the login page.
-
-### 5. Create Your First User
-
-1. Go to your Supabase dashboard
-2. Navigate to **Authentication → Users**
-3. Click **Add User** and create an account
-4. Use those credentials to log in
+---
 
 ## 📁 Project Structure
 
 ```
-src/
-├── app/
-│   ├── (auth)/
-│   │   └── login/           # Login page
-│   ├── (dashboard)/
-│   │   ├── layout.tsx       # Dashboard layout
-│   │   └── products/        # Products management
-│   ├── globals.css          # Global styles
-│   ├── layout.tsx           # Root layout
-│   └── page.tsx             # Home (redirects to products)
-├── components/
-│   ├── ui/                  # shadcn/ui components
-│   └── layout/
-│       └── navbar.tsx       # Navigation bar
-├── lib/
-│   ├── supabase/            # Supabase clients
-│   ├── constants.ts         # App constants
-│   ├── utils.ts             # Utility functions
-│   └── validations.ts       # Zod schemas
-└── types/
-    └── database.ts          # Database types
+qalin-sara-inventory/
+├── 📂 src/
+│   ├── 📂 app/                    # Next.js App Router
+│   │   ├── 📂 (auth)/             # Authentication pages
+│   │   │   └── login/             # Login page
+│   │   ├── 📂 (dashboard)/        # Protected dashboard routes
+│   │   │   ├── analytics/         # Analytics dashboard
+│   │   │   ├── expenses/          # Expense management
+│   │   │   ├── invoices/          # Invoice management
+│   │   │   ├── orders/            # Order management
+│   │   │   ├── products/          # Product/inventory management
+│   │   │   ├── settings/          # User settings
+│   │   │   └── layout.tsx         # Dashboard layout with sidebar
+│   │   ├── globals.css            # Global styles and CSS variables
+│   │   ├── layout.tsx             # Root layout
+│   │   └── page.tsx               # Home page (redirects to products)
+│   │
+│   ├── 📂 components/             # React components
+│   │   ├── 📂 dashboard/          # Dashboard-specific components
+│   │   ├── 📂 expenses/           # Expense form and table
+│   │   ├── 📂 invoices/           # Invoice form, table, and view
+│   │   ├── 📂 layout/             # Layout components (header, sidebar, etc.)
+│   │   ├── 📂 orders/             # Order form and view
+│   │   ├── 📂 products/           # Product form, table, and image preview
+│   │   ├── 📂 providers/          # Context providers (theme, locale)
+│   │   ├── 📂 settings/           # Settings form components
+│   │   └── 📂 ui/                 # shadcn/ui base components
+│   │
+│   ├── 📂 lib/                    # Utility libraries
+│   │   ├── 📂 hooks/              # Custom React hooks
+│   │   ├── 📂 supabase/           # Supabase client configuration
+│   │   ├── 📂 translations/       # i18n translation files
+│   │   ├── constants.ts           # Application constants
+│   │   ├── inventory-export.ts    # Import/export utilities
+│   │   ├── utils.ts               # General utilities
+│   │   └── validations.ts         # Zod validation schemas
+│   │
+│   └── 📂 types/                  # TypeScript type definitions
+│       └── database.ts            # Database schema types
+│
+├── 📂 supabase/
+│   └── 📂 migrations/             # SQL migration files
+│
+├── 📂 public/                     # Static assets
+├── 📂 docs/                       # Documentation
+├── .env.example                   # Environment variables template
+├── package.json                   # Dependencies and scripts
+├── tailwind.config.ts             # Tailwind CSS configuration
+├── tsconfig.json                  # TypeScript configuration
+└── README.md                      # This file
 ```
+
+---
 
 ## 🗄️ Database Schema
 
-### Products Table
-- `id`: UUID (primary key)
-- `code`: TEXT (unique, required)
-- `photo_url`: TEXT (Supabase Storage URL)
-- `created_at`, `updated_at`: TIMESTAMP
+### Entity Relationship Diagram
 
-### Product Sizes Table
-- `id`: UUID (primary key)
-- `product_id`: UUID (foreign key → products.id)
-- `size`: ENUM ('12m', '9m', '6m', '4m', '3m', '2m')
-- `count`: INTEGER
-- `purchase_price`: DECIMAL(10,2)
-- `selling_price`: DECIMAL(10,2)
+```
+┌─────────────┐     ┌──────────────────┐
+│  products   │────<│  product_sizes   │
+└─────────────┘     └──────────────────┘
+       │
+       │
+┌──────┴──────┐     ┌──────────────────┐
+│   orders    │────<│   order_items    │
+└─────────────┘     └──────────────────┘
+       │
+       │
+┌──────┴──────┐     ┌──────────────────┐
+│  invoices   │────<│  invoice_items   │
+└─────────────┘     └──────────────────┘
+
+┌─────────────────────┐     ┌─────────────┐
+│ expense_categories  │────<│  expenses   │
+└─────────────────────┘     └─────────────┘
+```
+
+### Tables Overview
+
+| Table | Description |
+|-------|-------------|
+| `products` | Product catalog with codes and photos |
+| `product_sizes` | Size variants with inventory and pricing |
+| `orders` | Customer orders with status tracking |
+| `order_items` | Line items for each order |
+| `invoices` | Generated invoices linked to orders |
+| `invoice_items` | Line items for each invoice |
+| `expense_categories` | Expense categorization |
+| `expenses` | Business expense records |
+
+---
 
 ## 🔧 Available Scripts
 
 ```bash
-npm run dev          # Start development server
+# Development
+npm run dev          # Start development server with Turbopack
+
+# Production
 npm run build        # Build for production
 npm run start        # Start production server
+
+# Code Quality
 npm run lint         # Run ESLint
 ```
 
-## 🎨 Customization
+---
 
-### Colors
-The app uses a custom color scheme inspired by the Qalin Sara logo:
-- Primary Red: `#B71C1C`, `#D32F2F`
-- Beige: `#D7CCC8`, `#BCAAA4`
-- Defined in `tailwind.config.ts` and `globals.css`
+## 🌐 Deployment
 
-### Components
-All UI components are from shadcn/ui and can be customized in `src/components/ui/`
+### Vercel (Recommended)
 
-## 📝 Next Steps
+1. Push your code to GitHub
+2. Import the repository in [Vercel](https://vercel.com)
+3. Add environment variables in Vercel dashboard
+4. Deploy!
 
-The foundation is complete! To continue building:
+### Environment Variables for Production
 
-1. **Database Setup**: Run the migrations in Supabase
-2. **Authentication**: Create your first user in Supabase Auth
-3. **Product Management**: Add the product form and table components
-4. **Photo Upload**: Implement Supabase Storage integration
-5. **Search & Filter**: Add real-time search functionality
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## 📄 License
-
-MIT License - see LICENSE file for details.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-production-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-production-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-production-service-key
+NEXT_PUBLIC_APP_URL=https://your-domain.com
+```
 
 ---
 
-**Built with ❤️ for Qalin Sara**
+## 📖 Documentation
+
+| Document | Description |
+|----------|-------------|
+| [Database Setup](./docs/DATABASE_SETUP.md) | Complete database setup guide |
+| [Deployment Guide](./docs/DEPLOYMENT.md) | Production deployment instructions |
+| [API Reference](./docs/API.md) | Database schema and API documentation |
+| [Contributing](./CONTRIBUTING.md) | Contribution guidelines |
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please read our [Contributing Guide](./CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
+
+### Development Workflow
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
+
+---
+
+## 👤 Author
+
+**Your Name**
+- GitHub: [@yourusername](https://github.com/yourusername)
+- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- Portfolio: [your-portfolio.com](https://your-portfolio.com)
+
+---
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/) for the amazing React framework
+- [Supabase](https://supabase.com/) for the backend infrastructure
+- [shadcn/ui](https://ui.shadcn.com/) for beautiful UI components
+- [Tailwind CSS](https://tailwindcss.com/) for utility-first styling
+
+---
+
+<div align="center">
+
+**⭐ Star this repository if you find it helpful!**
+
+Made with ❤️ for Qalin Sara
+
+</div>

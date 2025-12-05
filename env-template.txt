@@ -1,9 +1,44 @@
-# Copy this to .env.local and fill in your Supabase credentials
+# ============================================
+# Qalin Sara Inventory - Environment Variables
+# ============================================
+# 
+# SETUP INSTRUCTIONS:
+# 1. Copy this file to .env.local
+# 2. Fill in your Supabase credentials
+# 3. Never commit .env.local to version control!
+#
+# Get your credentials from:
+# Supabase Dashboard → Settings → API
+# ============================================
 
-# Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+# --------------------------------------------
+# SUPABASE CONFIGURATION (Required)
+# --------------------------------------------
 
-# App Configuration
+# Your Supabase project URL
+# Example: https://abcdefghijklmnop.supabase.co
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-id.supabase.co
+
+# Public anonymous key (safe to expose in browser)
+# Used for client-side operations with RLS
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+
+# Service role key (KEEP SECRET - server-side only!)
+# Has full access to bypass RLS - never expose to client
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+
+# --------------------------------------------
+# APPLICATION CONFIGURATION
+# --------------------------------------------
+
+# Base URL of your application
+# Development: http://localhost:3000
+# Production: https://your-domain.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# ============================================
+# NOTES:
+# - All NEXT_PUBLIC_* variables are exposed to the browser
+# - Keep SUPABASE_SERVICE_ROLE_KEY secret
+# - Update NEXT_PUBLIC_APP_URL for production deployments
+# ============================================
