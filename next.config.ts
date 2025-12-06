@@ -16,16 +16,17 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
     NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
   },
-  // Allow build to continue with lint warnings (errors will still fail)
+  // ESLint configuration - allow warnings but fail on errors
   eslint: {
-    // Only ignore warnings during builds, not errors
-    // This allows deployment while you fix warnings gradually
-    ignoreDuringBuilds: false, // Set to true if you want to ignore linting during builds
+    // Warnings won't fail the build, only errors will
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    // Ignore TypeScript errors during builds (optional, not recommended)
+    // Don't ignore TypeScript errors
     ignoreBuildErrors: false,
   },
+  // Output configuration for Vercel
+  output: undefined, // Let Vercel handle this automatically
 };
 
 export default nextConfig;
