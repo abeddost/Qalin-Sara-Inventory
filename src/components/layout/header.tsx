@@ -218,30 +218,31 @@ export function Header({ onAddProduct, user }: HeaderProps) {
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 px-6 py-4">
-      <div className="flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 px-3 sm:px-6 py-3 sm:py-4 w-full max-w-full overflow-x-hidden">
+      <div className="flex items-center justify-between gap-2">
         {/* Action Buttons */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 sm:space-x-3">
           <Button 
             onClick={onAddProduct}
-            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-2 px-4 py-2 rounded-md transition-colors"
+            className="bg-blue-600 hover:bg-blue-700 text-white flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-2 rounded-md transition-colors text-sm sm:text-base"
           >
             <Plus className="h-4 w-4" />
-            <span className="font-medium">Add Product</span>
+            <span className="font-medium hidden sm:inline">Add Product</span>
+            <span className="font-medium sm:hidden">Add</span>
           </Button>
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Notifications */}
           <div className="relative" ref={notificationsRef}>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="relative flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
+              className="relative flex items-center space-x-1 sm:space-x-2 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors"
               onClick={() => setShowNotifications(!showNotifications)}
             >
               <Bell className="h-4 w-4" />
-              <span className="text-sm font-medium">Notifications</span>
+              <span className="text-sm font-medium hidden sm:inline">Notifications</span>
               {unreadCount > 0 && (
                 <span className="h-5 w-5 bg-red-500 rounded-full text-xs text-white flex items-center justify-center">
                   {unreadCount}
@@ -251,7 +252,7 @@ export function Header({ onAddProduct, user }: HeaderProps) {
 
             {/* Notifications Dropdown */}
             {showNotifications && (
-              <div className="absolute right-0 top-full mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
+              <div className="absolute right-0 top-full mt-2 w-[90vw] sm:w-80 max-w-sm bg-white border border-gray-200 rounded-lg shadow-lg z-50 max-h-96 overflow-y-auto">
                 <div className="p-4 border-b border-gray-200">
                   <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
                 </div>
@@ -322,16 +323,16 @@ export function Header({ onAddProduct, user }: HeaderProps) {
               variant="ghost" 
               size="sm"
               onClick={() => setShowSettings(!showSettings)}
-              className="flex items-center space-x-2 hover:bg-gray-100 px-3 py-2 rounded-md transition-colors"
+              className="flex items-center space-x-1 sm:space-x-2 hover:bg-gray-100 px-2 sm:px-3 py-2 rounded-md transition-colors"
               title="Quick Settings"
             >
               <Settings className="h-4 w-4" />
-              <span className="text-sm font-medium">Quick Settings</span>
+              <span className="text-sm font-medium hidden sm:inline">Quick Settings</span>
             </Button>
 
             {/* Settings Dropdown */}
             {showSettings && (
-              <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+              <div className="absolute right-0 top-full mt-2 w-[90vw] sm:w-64 max-w-xs bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                 {/* User Info Header */}
                 <div className="px-4 py-3 border-b border-gray-100 bg-gray-50">
                   <div className="flex items-center space-x-3">
@@ -403,7 +404,7 @@ export function Header({ onAddProduct, user }: HeaderProps) {
       </div>
 
       {/* Breadcrumb */}
-      <div className="mt-2">
+      <div className="mt-2 hidden sm:block">
         <nav className="text-sm text-gray-500">
           Home / Dashboard
         </nav>

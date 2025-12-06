@@ -440,7 +440,7 @@ export default function InvoiceForm({ open, onClose, onSuccess, invoice }: Invoi
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl"
+        className="w-[95vw] sm:w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-xl mx-2 sm:mx-0"
         style={{
           backgroundColor: theme === 'dark' ? '#111827' : '#ffffff',
           borderColor: theme === 'dark' ? '#374151' : '#e5e7eb'

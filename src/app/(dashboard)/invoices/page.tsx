@@ -90,7 +90,7 @@ export default function InvoicesPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -126,13 +126,13 @@ export default function InvoicesPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Invoices</p>
-                <p className="text-3xl font-bold text-gray-900">{totalInvoices}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Invoices</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">{totalInvoices}</p>
               </div>
               <FileText className="h-8 w-8 text-blue-600" />
             </div>
@@ -140,11 +140,11 @@ export default function InvoicesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Amount</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
               </div>
               <DollarSign className="h-8 w-8 text-green-600" />
             </div>
@@ -152,7 +152,7 @@ export default function InvoicesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Paid Amount</p>
@@ -164,7 +164,7 @@ export default function InvoicesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending Amount</p>

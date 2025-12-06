@@ -415,3 +415,4 @@ Common error codes:
 - `42P01` - Table does not exist
 - `PGRST116` - Row not found
 
+

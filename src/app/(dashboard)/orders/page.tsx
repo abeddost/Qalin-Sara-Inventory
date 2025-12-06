@@ -415,7 +415,7 @@ export default function OrdersPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-6">
+      <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -431,25 +431,25 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
+      <div className="mb-6 sm:mb-8 w-full max-w-full overflow-x-hidden">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="flex-1 min-w-0">
             <h1 
-              className="text-3xl font-bold"
+              className="text-2xl sm:text-3xl font-bold"
               style={{ color: theme === 'dark' ? '#ffffff' : '#111827' }}
             >
               Orders Management
             </h1>
             <p 
-              className="mt-2"
+              className="mt-2 text-sm sm:text-base"
               style={{ color: theme === 'dark' ? '#d1d5db' : '#4b5563' }}
             >
               Track and manage customer orders
             </p>
             <div 
-              className="mt-2 text-sm px-3 py-1 rounded-full inline-block"
+              className="mt-2 text-xs sm:text-sm px-3 py-1 rounded-full inline-block"
               style={{ 
                 color: theme === 'dark' ? '#10b981' : '#059669',
                 backgroundColor: theme === 'dark' ? '#064e3b' : '#d1fae5'
@@ -459,14 +459,15 @@ export default function OrdersPage() {
             </div>
           </div>
           <Button 
-            className="bg-blue-600 hover:bg-blue-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
             onClick={() => {
               setOrderToEdit(null)
               setIsOrderFormOpen(true)
             }}
           >
             <Plus className="h-4 w-4 mr-2" />
-            Create Order
+            <span className="hidden sm:inline">Create Order</span>
+            <span className="sm:hidden">Create</span>
           </Button>
         </div>
       </div>
@@ -501,7 +502,7 @@ export default function OrdersPage() {
         </div>
 
         {/* Status Cards */}
-        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
           <Card className="bg-white border-0 shadow-sm">
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
@@ -577,25 +578,25 @@ export default function OrdersPage() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-          <div className="flex flex-col md:flex-row md:items-center space-y-4 md:space-y-0 md:space-x-4">
-            <div className="relative">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 sm:p-6 mb-6 w-full max-w-full overflow-x-hidden">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full sm:w-auto">
+            <div className="relative w-full sm:w-auto sm:min-w-[200px]">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
                 placeholder="Search orders..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full md:w-64"
+                className="pl-10 w-full sm:w-64"
               />
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-gray-400" />
+            <div className="flex items-center space-x-2 w-full sm:w-auto">
+              <Filter className="h-4 w-4 text-gray-400 flex-shrink-0" />
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 w-full sm:w-auto"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -608,18 +609,19 @@ export default function OrdersPage() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
+          <div className="flex items-center space-x-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" className="w-full sm:w-auto">
               <Download className="h-4 w-4 mr-2" />
-              Export
+              <span className="hidden sm:inline">Export</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* Orders Table */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <Table>
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full max-w-full">
+        <div className="overflow-x-auto w-full">
+          <Table className="w-full min-w-[640px]">
           <TableHeader>
             <TableRow>
               <TableHead 
@@ -782,6 +784,7 @@ export default function OrdersPage() {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
 
       {/* Delete Confirmation Dialog */}

@@ -101,7 +101,7 @@ export default function ExpensesPage() {
     .reduce((sum, exp) => sum + exp.amount, 0)
 
   return (
-    <div className="min-h-screen p-6">
+    <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
@@ -130,9 +130,9 @@ export default function ExpensesPage() {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Expenses</p>
@@ -144,11 +144,11 @@ export default function ExpensesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">Total Amount</p>
-                <p className="text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Amount</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">€{totalAmount.toLocaleString()}</p>
               </div>
               <DollarSign className="h-8 w-8 text-red-600" />
             </div>
@@ -156,11 +156,11 @@ export default function ExpensesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-600">This Month</p>
-                <p className="text-3xl font-bold text-gray-900">€{monthlyAmount.toLocaleString()}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-gray-600">This Month</p>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900">€{monthlyAmount.toLocaleString()}</p>
               </div>
               <Calendar className="h-8 w-8 text-green-600" />
             </div>
@@ -168,7 +168,7 @@ export default function ExpensesPage() {
         </Card>
 
         <Card className="bg-white border-0 shadow-sm">
-          <CardContent className="p-6">
+          <CardContent className="p-4 sm:p-6">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Pending</p>

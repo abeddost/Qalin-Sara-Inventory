@@ -298,8 +298,8 @@ export default function InvoiceTable({ invoices, onRefresh, onInvoiceUpdate }: I
           border: theme === 'dark' ? '1px solid #374151' : 'none'
         }}
       >
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y" style={{ borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' }}>
+        <div className="overflow-x-auto w-full max-w-full">
+          <table className="min-w-full divide-y w-full" style={{ borderColor: theme === 'dark' ? '#374151' : '#e5e7eb' }}>
             <thead style={{ backgroundColor: theme === 'dark' ? '#1f2937' : '#f9fafb' }}>
               <tr>
                 <th 

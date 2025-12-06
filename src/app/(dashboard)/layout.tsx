@@ -18,11 +18,11 @@ export default async function DashboardLayout({
   }
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex overflow-x-hidden">
       <Sidebar user={user} />
-      <div className="flex-1 lg:ml-0">
+      <div className="flex-1 lg:ml-0 w-0 min-w-0 overflow-x-hidden">
         {/* Pass user to children through context or props */}
-        <div className="user-context" data-user={JSON.stringify(user)}>
+        <div className="user-context w-full max-w-full overflow-x-hidden" data-user={JSON.stringify(user)}>
           {children}
         </div>
       </div>

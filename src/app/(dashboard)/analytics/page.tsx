@@ -138,7 +138,7 @@ export default function AnalyticsPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen p-6">
+      <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
         <div className="flex items-center justify-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
@@ -155,7 +155,7 @@ export default function AnalyticsPage() {
 
   if (!analyticsData) {
     return (
-      <div className="min-h-screen p-6">
+      <div className="min-h-screen p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
         <div className="text-center">
           <AlertCircle 
             className="h-12 w-12 mx-auto mb-4"
@@ -269,10 +269,10 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
         {metrics.map((metric, index) => (
           <Card key={index} className="bg-white border-0 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-1">{metric.title}</p>
@@ -294,7 +294,7 @@ export default function AnalyticsPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {alertMetrics.map((alert, index) => (
           <Card key={index} className="bg-white border-0 shadow-sm">
-            <CardContent className="p-6">
+            <CardContent className="p-4 sm:p-6">
               <div className="flex items-center space-x-4">
                 <div className={`p-3 rounded-lg ${alert.iconBg}`}>
                   <alert.icon className={`h-8 w-8 ${alert.iconColor}`} />

@@ -404,8 +404,8 @@ export default function ExpenseTable({ expenses, onEdit, onRefresh, onExpenseUpd
           ? 'bg-gray-900 border-gray-700' 
           : 'bg-white border-gray-200'
       }`}>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto w-full max-w-full">
+          <table className="w-full min-w-[640px]">
             <thead className={`border-b ${
               theme === 'dark' 
                 ? 'bg-gray-800 border-gray-700' 

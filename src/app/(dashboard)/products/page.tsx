@@ -271,10 +271,10 @@ export default function ProductsPage() {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden">
       <Header onAddProduct={() => setIsFormOpen(true)} user={user} />
       
-      <div className="p-6">
+      <div className="p-3 sm:p-6 w-full max-w-full overflow-x-hidden">
         {/* Key Metrics */}
         <MetricsOverview 
           products={products} 
@@ -285,36 +285,36 @@ export default function ProductsPage() {
 
         {/* Export/Import Controls */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 p-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-1">Inventory Data Management</h3>
               <p className="text-sm text-gray-600">Export your inventory data or import from a file</p>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:space-x-3">
               {/* Export Buttons */}
               <div className="flex items-center space-x-2">
                 <Button
                   onClick={handleExportJSON}
                   disabled={isExporting || products.length === 0}
                   variant="outline"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 flex-1 sm:flex-initial"
                 >
                   <FileJson className="h-4 w-4" />
-                  <span>Export JSON</span>
+                  <span className="text-sm sm:text-base">Export JSON</span>
                 </Button>
                 <Button
                   onClick={handleExportCSV}
                   disabled={isExporting || products.length === 0}
                   variant="outline"
-                  className="flex items-center space-x-2"
+                  className="flex items-center space-x-2 flex-1 sm:flex-initial"
                 >
                   <FileSpreadsheet className="h-4 w-4" />
-                  <span>Export CSV</span>
+                  <span className="text-sm sm:text-base">Export CSV</span>
                 </Button>
               </div>
 
               {/* Import Button */}
-              <div>
+              <div className="w-full sm:w-auto">
                 <input
                   id="import-file"
                   type="file"
@@ -326,11 +326,11 @@ export default function ProductsPage() {
                 <Button
                   variant="default"
                   disabled={isImporting}
-                  className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white"
+                  className="flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white w-full sm:w-auto"
                   onClick={() => document.getElementById('import-file')?.click()}
                 >
                   <Upload className="h-4 w-4" />
-                  <span>{isImporting ? 'Importing...' : 'Import Data'}</span>
+                  <span className="text-sm sm:text-base">{isImporting ? 'Importing...' : 'Import Data'}</span>
                 </Button>
               </div>
             </div>
@@ -338,7 +338,7 @@ export default function ProductsPage() {
         </div>
 
         {/* Products Table */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 mb-6 w-full max-w-full overflow-x-hidden">
           <ProductTable products={products} onRefresh={fetchDashboardData} />
         </div>
 

@@ -705,10 +705,14 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
               {validSizes.length > 0 ? (
                 <div className="space-y-3">
                   {validSizes.map((entry) => (
-                    <div key={entry.id} className="flex justify-between items-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <div key={entry.id} className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 sm:gap-0 p-4 bg-blue-50 rounded-lg border border-blue-200">
                       <Badge variant="secondary" className="bg-blue-100 text-blue-800">{entry.size}</Badge>
-                      <div className="text-sm text-gray-700 font-medium">
-                        Count: {entry.count || 0} | Purchase: €{entry.purchase_price || 0} | Selling: €{entry.selling_price || 0}
+                      <div className="text-xs sm:text-sm text-gray-700 font-medium flex flex-wrap gap-2 sm:gap-0 sm:block">
+                        <span>Count: {entry.count || 0}</span>
+                        <span className="hidden sm:inline"> | </span>
+                        <span>Purchase: €{entry.purchase_price || 0}</span>
+                        <span className="hidden sm:inline"> | </span>
+                        <span>Selling: €{entry.selling_price || 0}</span>
                       </div>
                     </div>
                   ))}
@@ -753,7 +757,7 @@ export function ProductFormWizard({ open, onOpenChange, product, onSuccess }: Pr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl">
+      <DialogContent className="w-[95vw] sm:w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-white border-gray-200 shadow-xl mx-2 sm:mx-0">
         <DialogHeader className="pb-4">
           <DialogTitle className="text-2xl font-bold text-gray-900">
             {product ? 'Edit Product' : 'Add New Product'}

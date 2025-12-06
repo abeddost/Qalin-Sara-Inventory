@@ -255,3 +255,4 @@ Monitor in Supabase:
 2. Verify environment variables
 3. Check Supabase service status
 
+
