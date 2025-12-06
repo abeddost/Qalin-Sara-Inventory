@@ -82,10 +82,10 @@ These challenges lead to stock discrepancies, missed sales opportunities, and in
 
 | Phase | Features | Timeline |
 |-------|----------|----------|
-| **Phase 1** | Customer portal, online quotes | Q1 2025 |
-| **Phase 2** | Supplier management, purchase orders | Q2 2025 |
-| **Phase 3** | Business intelligence, reporting | Q3 2025 |
-| **Phase 4** | Mobile app (iOS/Android) | Q4 2025 |
+| **Phase 1** | Customer portal, online quotes | Q1 2026 |
+| **Phase 2** | Supplier management, purchase orders | Q2 2026 |
+| **Phase 3** | Business intelligence, reporting | Q3 2026 |
+| **Phase 4** | Mobile app (iOS/Android) | Q4 2026 |
 
 ---
 
@@ -111,7 +111,7 @@ We're seeking:
 
 ### 🔗 Resources
 
-- **Live Demo**: [Request access]
+- **Live Demo**: [qalinsara.vercel.app](https://qalinsara.vercel.app)
 - **Source Code**: [GitHub Repository](https://github.com/abeddost/qalin-sara-inventory)
 - **Technical Documentation**: See `/docs` folder in repository
 
