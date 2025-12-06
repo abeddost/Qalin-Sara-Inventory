@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  // Ensure Next.js uses this workspace as the root (avoid parent lockfile picking)
+  turbopack: {
+    root: __dirname,
+  },
+  // Silence workspace-root warning for output tracing
+  outputFileTracingRoot: __dirname,
   // Optimize images
   images: {
     remotePatterns: [
